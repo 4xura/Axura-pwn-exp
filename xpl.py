@@ -18,7 +18,17 @@ def g(gdbscript=""):
 
 def pa(desc, addr):
     info("@{}--->: %#x".format(desc), addr)
-    
+
+
+s       = lambda data                 :p.send(data)
+sa      = lambda delim,data           :p.sendafter(delim, data)
+sl      = lambda data                 :p.sendline(data)
+sla     = lambda delim,data           :p.sendlineafter(delim, data)
+r       = lambda num=4096             :p.recv(num)
+ru      = lambda delim, drop=True     :p.recvuntil(delim, drop)
+l64     = lambda                      :u64(p.recvuntil("\x7f")[-6:].ljust(8,b"\x00"))
+uu64    = lambda data                 :u64(data.ljust(8, b'\0'))
+
  
 def exploit():
 
@@ -27,10 +37,8 @@ def exploit():
     
     
     
-    p.interactive()
-    
-    
-    
+    p.interactive()  
+
 
 if __name__ == '__main__':
     
