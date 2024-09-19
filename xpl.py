@@ -1,24 +1,24 @@
 from pwn import *
 
 
-def g(gdbscript=""):
-    if mode["local"]:
+def g(gdbscript=''):
+    if mode['local']:
         sysroot = None
         if libc_path != '':
             sysroot = os.path.dirname(libc_path)
         gdb.attach(p, gdbscript=gdbscript, sysroot=sysroot)
-        if gdbscript == "":
+        if gdbscript == '':
             raw_input()
     
-    elif mode["remote"]:
+    elif mode['remote']:
         gdb.attach((remote_ip_addr, remote_port), gdbscript)
-        if gdbscript == "":
+        if gdbscript == '':
             raw_input
 
 
 def pa(desc, addr):
-    info("@{}--->: %#x".format(desc), addr)
-
+    info('@{}--->: %#x'.format(desc), addr)
+    
 
 s       = lambda data                 :p.send(data)
 sa      = lambda delim,data           :p.sendafter(delim, data)
@@ -26,10 +26,10 @@ sl      = lambda data                 :p.sendline(data)
 sla     = lambda delim,data           :p.sendlineafter(delim, data)
 r       = lambda num=4096             :p.recv(num)
 ru      = lambda delim, drop=True     :p.recvuntil(delim, drop)
-l64     = lambda                      :u64(p.recvuntil("\x7f")[-6:].ljust(8,b"\x00"))
+l64     = lambda                      :u64(p.recvuntil('\x7f')[-6:].ljust(8,b'\x00'))
 uu64    = lambda data                 :u64(data.ljust(8, b'\0'))
 
- 
+
 def exploit():
 
 
@@ -37,27 +37,27 @@ def exploit():
     
     
     
-    p.interactive()  
-
-
+    p.interactive()
+    
+    
 if __name__ == '__main__':
     
     file_path = ''
     libc_path = ''
     ld_path   = ''
     
-    context(arch="amd64", os="linux", endian="little")
-    context.log_level="debug"
+    context(arch='amd64', os='linux', endian='little')
+    context.log_level='debug'
     
     e    = ELF(file_path, checksec=False)
-    mode = {"local": False, "remote": False, }
+    mode = {'local': False, 'remote': False, }
     env  = None
     
     if len(sys.argv) > 1:
         if libc_path != '':
             libc = ELF(libc_path)
         p = remote(sys.argv[1], int(sys.argv[2]))
-        mode["remote"] = True
+        mode['remote'] = True
         remote_ip_addr = sys.argv[1]
         remote_port    = int(sys.argv[2])
     else:
@@ -69,6 +69,6 @@ if __name__ == '__main__':
             p   = process(cmd, env=env)
         else:
             p = process(file_path, env=env)
-        mode["local"] = True
+        mode['local'] = True
         
     exploit()
