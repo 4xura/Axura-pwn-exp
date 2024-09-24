@@ -17,7 +17,7 @@ def g(gdbscript=''):
 
 
 def pa(desc, addr):
-    info('@{}--->: %#x'.format(desc), addr)
+    info('@{} ---> %#x'.format(desc), addr)
     
 
 s       = lambda data                 :p.send(data)
