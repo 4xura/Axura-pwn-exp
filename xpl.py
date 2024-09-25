@@ -28,12 +28,34 @@ r       = lambda num=4096             :p.recv(num)
 ru      = lambda delim, drop=True     :p.recvuntil(delim, drop)
 l64     = lambda                      :u64(p.recvuntil('\x7f')[-6:].ljust(8,b'\x00'))
 uu64    = lambda data                 :u64(data.ljust(8, b'\0'))
+    
+
+def toBytes(d):
+    return str(d).encode()
+
+
+def menu(choice):
+    pass
+
+
+def add():
+    pass
+
+
+def free():
+    pass
+
+
+def edit():
+    pass
+
+
+def show():
+    pass
 
 
 def exploit():
 
-
-    
     
     
     
