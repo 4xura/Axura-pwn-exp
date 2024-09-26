@@ -1,4 +1,5 @@
 from pwn import *
+import inspect
 
 
 def g(gdbscript=''):
@@ -16,7 +17,10 @@ def g(gdbscript=''):
             raw_input
 
 
-def pa(desc, addr):
+def pa(addr):
+    frame = inspect.currentframe().f_back
+    variables = {k: v for k, v in frame.f_locals.items() if v is addr}
+    desc = next(iter(variables.keys()), "unknown")
     info('@{} ---> %#x'.format(desc), addr)
     
 
@@ -56,8 +60,6 @@ def show():
 
 def exploit():
 
-    
-    
     
     p.interactive()
     
