@@ -14,11 +14,11 @@ exit
 
 It means, when the `exit` function is called, one of the cleanup tasks is to flush and close all open file streams. This is done through a chain of function calls shown above. And eventually `_IO_flush_all_lockp` iterates over the file streams stored in `_IO_list_all` (points to `_IO_2_1_stderr_` followingly by default):
 
-![_IO_flush_all_lockp_1](House of Apple.assets/_IO_flush_all_lockp_1.jpg)
+![alt text](images/_IO_flush_all_lockp_1.jpg)
 
 If we change the vtable pointer (struct `IO_jump_t`) inside the fake IO struct to `_IO_wxxxx_jumps`, it then quotes `_wide_data` and execute functions inside its vtable pointer. For example, if we make the vtable pointer as `_IO_wfile_jumps`:
 
-![_IO_flush_all_lockp_2](House of Apple.assets/_IO_flush_all_lockp_2.jpg)
+![alt text](images/_IO_flush_all_lockp_2.jpg)
 
 
 
