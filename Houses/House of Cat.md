@@ -126,5 +126,5 @@ pl = flat({
 
 **Illustration**:
 
-![house_of_cat_depict](House of Cat.assets/house_of_cat_depict.png)
+![alt text](images/house_of_cat_depict.png)
 
