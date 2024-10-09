@@ -38,9 +38,10 @@ def toBytes(d):
     return str(d).encode()
 
 
-def ROL(var, key):
-    tmp = bin(var)[2:].rjust(64, '0')
-    return int(tmp[key:] + tmp[:key], 2)
+def ROL(xor, cnt):
+    tmp = bin(xor)[2:].rjust(64, '0')
+    enc = int(tmp[cnt:] + tmp[:cnt], 2)
+    return enc
 
 
 def menu(choice):
