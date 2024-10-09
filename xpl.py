@@ -64,7 +64,7 @@ def show():
     pass
 
 
-def exploit():
+def exp():
 
     
     p.interactive()
@@ -101,4 +101,4 @@ if __name__ == '__main__':
             p = process(file_path, env=env)
         mode['local'] = True
         
-    exploit()
+    exp()
