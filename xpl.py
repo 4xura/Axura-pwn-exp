@@ -32,7 +32,24 @@ r       = lambda num=4096             :p.recv(num)
 ru      = lambda delim, drop=True     :p.recvuntil(delim, drop)
 l64     = lambda                      :u64(p.recvuntil('\x7f')[-6:].ljust(8,b'\x00'))
 uu64    = lambda data                 :u64(data.ljust(8, b'\0'))
-    
+
+
+def rol(xor, shift, bit_size):
+    """Performs a bitwise left rotate (ROL) on the enc."""
+    return ((xor << shift) | (xor >> (bit_size - shift))) & ((1 << bit_size) - 1)
+
+def PTR_MANGLE(ptr, ptr_guard, shift, bit_size):
+    xor = ptr ^ ptr_guard
+    return rol(xor, shift, bit_size)
+
+def ror(enc, shift, bit_size):
+    """Performs a bitwise right rotate (ROR) on the enc."""
+    return ((enc >> shift) | (enc << (bit_size - shift))) & ((1 << bit_size) - 1)
+
+def PTR_DEMANGLE(enc, ptr_guard, shift, bit_size):
+    var = ror(enc, shift, bit_size)
+    return var ^ ptr_guard
+
 
 def toBytes(d):
     return str(d).encode()
