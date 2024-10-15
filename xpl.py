@@ -67,6 +67,11 @@ def decrypt_fd(enc_fd):
     return plain
 
 
+def encrypt_fd(fd, heap_base):
+    enc_ptr = fd ^ (heap_base >> 12)
+    return enc_ptr
+
+
 def toBytes(d):
     return str(d).encode()
 
