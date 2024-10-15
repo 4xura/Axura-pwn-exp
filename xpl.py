@@ -51,6 +51,22 @@ def PTR_DEMANGLE(enc, ptr_guard, shift, bit_size):
     return var ^ ptr_guard
 
 
+def decrypt_fd(enc_fd):
+    key = 0
+    plain = 0
+    for i in range(1, 6):
+        bits = 64 - 12 * i
+        if bits < 0:
+            bits = 0
+        plain = ((enc_fd ^ key) >> bits) << bits
+        key = plain >> 12
+        print(f"Round {i}:")
+        print(f"Key:    {key:#016x}")      
+        print(f"Plain:  {plain:#016x}")    
+        print(f"Cipher: {enc_fd:#016x}\n") 
+    return plain
+
+
 def toBytes(d):
     return str(d).encode()
 
