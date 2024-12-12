@@ -104,7 +104,7 @@ def show():
 
 def exp():
 
-    
+    pause()
     p.interactive()
     
     
