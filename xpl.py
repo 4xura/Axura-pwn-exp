@@ -115,7 +115,8 @@ if __name__ == '__main__':
     ld_path   = ''
     
     context(arch='amd64', os='linux', endian='little')
-    context.log_level='debug'
+    context.log_level = "debug"
+    context.terminal  = ['tmux', 'splitw', '-h']
     
     e    = ELF(file_path, checksec=False)
     mode = {'local': False, 'remote': False, }
