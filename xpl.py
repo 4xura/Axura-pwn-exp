@@ -116,7 +116,7 @@ if __name__ == '__main__':
     
     context(arch='amd64', os='linux', endian='little')
     context.log_level = "debug"
-    context.terminal  = ['tmux', 'splitw', '-h']
+    #context.terminal  = ['tmux', 'splitw', '-h']    # ['<terminal_emulator>', '-e', ...]
     
     e    = ELF(file_path, checksec=False)
     mode = {'local': False, 'remote': False, }
