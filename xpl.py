@@ -56,6 +56,12 @@ def PTR_DEMANGLE(enc, ptr_guard, shift=0x11, bit_size=64):
     return var ^ ptr_guard
 
 
+def encrypt_fd(fd, heap_base):
+    """ Tcachebin pointer encryption """
+    enc_ptr = fd ^ (heap_base >> 12)
+    return enc_ptr
+
+
 def decrypt_fd(enc_fd):
     """ Tcachebin pointer decryption """
     key = 0
@@ -71,12 +77,6 @@ def decrypt_fd(enc_fd):
         print(f"Plain:  {plain:#016x}")    
         print(f"Cipher: {enc_fd:#016x}\n") 
     return plain
-
-
-def encrypt_fd(fd, heap_base):
-    """ Tcachebin pointer encryption """
-    enc_ptr = fd ^ (heap_base >> 12)
-    return enc_ptr
 
 
 def toBytes(d: int):
