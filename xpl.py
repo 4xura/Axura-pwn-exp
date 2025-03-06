@@ -51,7 +51,7 @@ def ror(enc, shift=0x11, bit_size=64):
 
 
 def PTR_DEMANGLE(enc, ptr_guard, shift=0x11, bit_size=64):
-    """ Decrypte function pointers with Pointer Guard """
+    """ Decrypt function pointers with Pointer Guard """
     var = ror(enc, shift, bit_size)
     return var ^ ptr_guard
 
