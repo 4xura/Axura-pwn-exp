@@ -21,7 +21,7 @@ def pa(addr):
     frame = inspect.currentframe().f_back
     variables = {k: v for k, v in frame.f_locals.items() if v is addr}
     desc = next(iter(variables.keys()), "unknown")
-    info("@{} ---> %#x".format(desc), addr)
+    success("[LEAK] {} ---> %#x".format(desc), addr)
     
 
 s       = lambda data                 :p.send(data)
@@ -83,7 +83,7 @@ def toBytes(d: int):
     return str(d).encode()
 
 
-def menu(choice):
+def menu(o):
     pass
 
 
