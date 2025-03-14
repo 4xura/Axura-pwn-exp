@@ -123,14 +123,14 @@ if __name__ == '__main__':
     mode = {"local": False, "remote": False, }
     env  = None
     
-    if len(sys.argv) > 1:
+    if len(sys.argv) == 3:
         if libc_path != "":
             libc = ELF(libc_path)
         p = remote(sys.argv[1], int(sys.argv[2]))
         mode["remote"] = True
         remote_ip_addr = sys.argv[1]
         remote_port    = int(sys.argv[2])
-    else:
+    elif len(sys.argv) == 1: 
         if libc_path != "":
             libc = ELF(libc_path)
             env  = {"LD_PRELOAD": libc_path}
@@ -140,5 +140,8 @@ if __name__ == '__main__':
         else:
             p = process(file_path, env=env)
         mode["local"] = True
-        
+    else:
+        print("Usage: python3 xpl.py | python3 xpl.py <ip> <port>")
+        sys.exit(1)   
+    
     exp()
