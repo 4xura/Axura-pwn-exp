@@ -97,7 +97,7 @@ struct _IO_FILE {                    // Offset: 0x00, Size: 0xD8 (216 bytes)
 
 #### (struct \_IO_wide_data *) _wide_data
 
-There's **NO `_flag` **field in this struct compared to `FILE` struct, and the offset of vtable is different.
+There's **NO `_flag`** field in this struct compared to `FILE` struct, and the offset of vtable is different.
 
 **Father**: `FILE file` (aka `struct _IO_FILE`)
 
