@@ -310,5 +310,3 @@ class dtor_list(Structure):
 ```
 
 
-
-[A Deep dive into (implicit) Thread Local Storage (chao-tic.github.io)](https://chao-tic.github.io/blog/2018/12/25/tls#:~:text=The dtv t is a member variable of tcbheader_t, which)
