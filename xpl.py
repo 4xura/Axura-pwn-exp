@@ -10,19 +10,19 @@ def g(gdbscript=""):
         gdb.attach(p, gdbscript=gdbscript, sysroot=sysroot)
         if gdbscript == "":
             raw_input()
-    
+
     elif mode["remote"]:
         gdb.attach((remote_ip_addr, remote_port), gdbscript)
         if gdbscript == "":
-            raw_input
-            
+            raw_input()
+
 
 def pa(addr):
     frame = inspect.currentframe().f_back
     variables = {k: v for k, v in frame.f_locals.items() if v is addr}
     desc = next(iter(variables.keys()), "unknown")
     success("[LEAK] {} ---> %#x".format(desc), addr)
-    
+
 
 s       = lambda data                 :p.send(data)
 sa      = lambda delim,data           :p.sendafter(delim, data)
@@ -73,9 +73,9 @@ def decrypt_fd(enc_fd):
         plain = ((enc_fd ^ key) >> bits) << bits
         key = plain >> 12
         print(f"Round {i}:")
-        print(f"Key:    {key:#016x}")      
-        print(f"Plain:  {plain:#016x}")    
-        print(f"Cipher: {enc_fd:#016x}\n") 
+        print(f"Key:    {key:#016x}")
+        print(f"Plain:  {plain:#016x}")
+        print(f"Cipher: {enc_fd:#016x}\n")
     return plain
 
 
@@ -107,22 +107,26 @@ def exp():
 
     pause()
     p.interactive()
-    
-    
+
+
 if __name__ == '__main__':
-    
+
     file_path = ""
     libc_path = ""
     ld_path   = ""
-    
+
     context(arch="amd64", os="linux", endian="little")
     context.log_level = "debug"
     #context.terminal  = ['tmux', 'splitw', '-h']    # ['<terminal_emulator>', '-e', ...]
-    
+
     e    = ELF(file_path, checksec=False)
     mode = {"local": False, "remote": False, }
     env  = None
-    
+
+    print("Usage: python3 xpl.py [<ip> <port>]\n"
+                "  - If no arguments are provided, runs in local mode (default).\n"
+                "  - Provide <ip> and <port> to target a remote host.\n")
+
     if len(sys.argv) == 3:
         if libc_path != "":
             libc = ELF(libc_path)
@@ -130,7 +134,7 @@ if __name__ == '__main__':
         mode["remote"] = True
         remote_ip_addr = sys.argv[1]
         remote_port    = int(sys.argv[2])
-    elif len(sys.argv) == 1: 
+    elif len(sys.argv) == 1:
         if libc_path != "":
             libc = ELF(libc_path)
             env  = {"LD_PRELOAD": libc_path}
@@ -141,7 +145,7 @@ if __name__ == '__main__':
             p = process(file_path, env=env)
         mode["local"] = True
     else:
-        print("Usage: python3 xpl.py | python3 xpl.py <ip> <port>")
-        sys.exit(1)   
-    
+        print("[-] Error: Invalid arguments provided.")
+        sys.exit(1)
+
     exp()
