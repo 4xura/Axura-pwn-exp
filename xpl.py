@@ -1,8 +1,9 @@
-from pwn import *
+import sys
 import inspect
+from pwn import *
 
 
-def g(gdbscript=""):
+def g(gdbscript: str = ""):
     if mode["local"]:
         sysroot = None
         if libc_path != "":
@@ -17,11 +18,11 @@ def g(gdbscript=""):
             raw_input()
 
 
-def pa(addr):
+def pa(addr: int) -> None:
     frame = inspect.currentframe().f_back
     variables = {k: v for k, v in frame.f_locals.items() if v is addr}
     desc = next(iter(variables.keys()), "unknown")
-    success("[LEAK] {} ---> %#x".format(desc), addr)
+    success(f"[LEAK] {desc} ---> {addr:#x}")
 
 
 s       = lambda data                 :p.send(data)
@@ -34,35 +35,35 @@ l64     = lambda                      :u64(p.recvuntil("\x7f")[-6:].ljust(8,b"\x
 uu64    = lambda data                 :u64(data.ljust(8, b"\0"))
 
 
-def rol(xor, shift=0x11, bit_size=64):
-    """Performs a bitwise left rotate (ROL) on the enc."""
+def rol(xor: int, shift: int = 0x11, bit_size: int = 64) -> int:
+    """Performs a bitwise left rotate (ROL)."""
     return ((xor << shift) | (xor >> (bit_size - shift))) & ((1 << bit_size) - 1)
 
 
-def PTR_MANGLE(ptr, ptr_guard, shift=0x11, bit_size=64):
-    """ Encrypt function pointers with Pointer Guard """
+def ror(enc: int, shift: int = 0x11, bit_size: int = 64) -> int:
+    """Performs a bitwise right rotate (ROR)."""
+    return ((enc >> shift) | (enc << (bit_size - shift))) & ((1 << bit_size) - 1)
+
+
+def PTR_MANGLE(ptr: int, ptr_guard: int, shift: int = 0x11, bit_size: int = 64) -> int:
+    """Encrypt function pointers with Pointer Guard."""
     xor = ptr ^ ptr_guard
     return rol(xor, shift, bit_size)
 
 
-def ror(enc, shift=0x11, bit_size=64):
-    """Performs a bitwise right rotate (ROR) on the enc."""
-    return ((enc >> shift) | (enc << (bit_size - shift))) & ((1 << bit_size) - 1)
-
-
-def PTR_DEMANGLE(enc, ptr_guard, shift=0x11, bit_size=64):
-    """ Decrypt function pointers with Pointer Guard """
+def PTR_DEMANGLE(enc: int, ptr_guard: int, shift: int = 0x11, bit_size: int = 64) -> int:
+    """Decrypt function pointers with Pointer Guard."""
     var = ror(enc, shift, bit_size)
     return var ^ ptr_guard
 
 
-def encrypt_fd(fd, heap_base):
+def encrypt_fd(fd: int, heap_base: int) -> int:
     """ Tcachebin pointer encryption """
     enc_ptr = fd ^ (heap_base >> 12)
     return enc_ptr
 
 
-def decrypt_fd(enc_fd):
+def decrypt_fd(enc_fd: int) -> int:
     """ Tcachebin pointer decryption """
     key = 0
     plain = 0
@@ -79,11 +80,16 @@ def decrypt_fd(enc_fd):
     return plain
 
 
-def toBytes(d: int):
-    return str(d).encode()
+def int_to_bytes(n: int, length: int = 4) -> bytes:
+    return n.to_bytes(length, 'little')
 
 
-def menu(o):
+def bytes_to_int(b: bytes) -> int:
+    return int.from_bytes(b, 'little')
+
+
+def menu(n: int):
+    opt = int_to_bytes(n)
     pass
 
 
