@@ -3,6 +3,16 @@ import inspect
 from pwn import *
 
 
+s       = lambda data                 :p.send(data)
+sa      = lambda delim,data           :p.sendafter(delim, data)
+sl      = lambda data                 :p.sendline(data)
+sla     = lambda delim,data           :p.sendlineafter(delim, data)
+r       = lambda num=4096             :p.recv(num)
+ru      = lambda delim, drop=True     :p.recvuntil(delim, drop)
+l64     = lambda                      :u64(p.recvuntil("\x7f")[-6:].ljust(8,b"\x00"))
+uu64    = lambda data                 :u64(data.ljust(8, b"\0"))
+
+
 def g(gdbscript: str = ""):
     if mode["local"]:
         sysroot = None
@@ -25,59 +35,63 @@ def pa(addr: int) -> None:
     success(f"[LEAK] {desc} ---> {addr:#x}")
 
 
-s       = lambda data                 :p.send(data)
-sa      = lambda delim,data           :p.sendafter(delim, data)
-sl      = lambda data                 :p.sendline(data)
-sla     = lambda delim,data           :p.sendlineafter(delim, data)
-r       = lambda num=4096             :p.recv(num)
-ru      = lambda delim, drop=True     :p.recvuntil(delim, drop)
-l64     = lambda                      :u64(p.recvuntil("\x7f")[-6:].ljust(8,b"\x00"))
-uu64    = lambda data                 :u64(data.ljust(8, b"\0"))
+class ROPGadgets:
+    def __init__(self, libc: ELF, libc_base: int): 
+        rop = ROP(libc)
+        self.addr = lambda x: libc_base + rop.find_gadget(x)[0] if rop.find_gadget(x) else None
+
+        self.gg = {
+            'p_rdi_r'       : self.addr(['pop rdi', 'ret']),
+            'p_rsi_r'       : self.addr(['pop rsi', 'ret']),
+            'p_rdx_rbx_r'   : self.addr(['pop rdx', 'pop rbx', 'ret']),
+            'p_rax_r'       : self.addr(['pop rax', 'ret']),
+            'leave_r'       : self.addr(['leave', 'ret']),
+            'ret'           : self.addr(['ret']),
+            'syscall_r'     : self.addr(['syscall', 'ret']),
+            'bin_sh'        : libc_base + next(libc.search(b'/bin/sh\x00'))
+        }
+
+    def __getitem__(self, k: str) -> int:
+        return self.gg.get(k)
 
 
-def rol(xor: int, shift: int = 0x11, bit_size: int = 64) -> int:
-    """Performs a bitwise left rotate (ROL)."""
-    return ((xor << shift) | (xor >> (bit_size - shift))) & ((1 << bit_size) - 1)
+class PointerGuard:
+    def __init__(self, guard: int, shift: int = 0x11, bit_size: int = 64):
+        self.guard = guard
+        self.shift = shift
+        self.bits = bit_size
+        self.mask = (1 << bit_size) - 1
+
+    def rol(self, val: int) -> int:
+        return ((val << self.shift) | (val >> (self.bits - self.shift))) & self.mask
+
+    def ror(self, val: int) -> int:
+        return ((val >> self.shift) | (val << (self.bits - self.shift))) & self.mask
+
+    def mangle(self, ptr: int) -> int:
+        return self.rol(ptr ^ self.guard)
+
+    def demangle(self, mangled: int) -> int:
+        return self.ror(mangled) ^ self.guard
 
 
-def ror(enc: int, shift: int = 0x11, bit_size: int = 64) -> int:
-    """Performs a bitwise right rotate (ROR)."""
-    return ((enc >> shift) | (enc << (bit_size - shift))) & ((1 << bit_size) - 1)
+class SafeLinking:
+    def __init__(self, heap_base: int):
+        self.heap_base = heap_base
 
+    def encrypt(self, fd: int) -> int:
+        return fd ^ (self.heap_base >> 12)
 
-def PTR_MANGLE(ptr: int, ptr_guard: int, shift: int = 0x11, bit_size: int = 64) -> int:
-    """Encrypt function pointers with Pointer Guard."""
-    xor = ptr ^ ptr_guard
-    return rol(xor, shift, bit_size)
-
-
-def PTR_DEMANGLE(enc: int, ptr_guard: int, shift: int = 0x11, bit_size: int = 64) -> int:
-    """Decrypt function pointers with Pointer Guard."""
-    var = ror(enc, shift, bit_size)
-    return var ^ ptr_guard
-
-
-def encrypt_fd(fd: int, heap_base: int) -> int:
-    """ Tcachebin pointer encryption """
-    enc_ptr = fd ^ (heap_base >> 12)
-    return enc_ptr
-
-
-def decrypt_fd(enc_fd: int) -> int:
-    """ Tcachebin pointer decryption """
-    key = 0
-    plain = 0
-    for i in range(1, 6):
-        bits = 64 - 12 * i
-        if bits < 0:
-            bits = 0
-        plain = ((enc_fd ^ key) >> bits) << bits
-        key = plain >> 12
-        print(f"Round {i}:")
-        print(f"Key:    {key:#016x}")
-        print(f"Plain:  {plain:#016x}")
-        print(f"Cipher: {enc_fd:#016x}\n")
-    return plain
+    def decrypt(self, enc_fd: int) -> int:
+        key = 0
+        plain = 0
+        for i in range(1, 6):
+            bits = 64 - 12 * i
+            if bits < 0:
+                bits = 0
+            plain = ((enc_fd ^ key) >> bits) << bits
+            key = plain >> 12
+        return plain
 
 
 def int_to_bytes(n: int, length: int = 4) -> bytes:
@@ -110,6 +124,7 @@ def show():
 
 
 def exp():
+
 
     pause()
     p.interactive()
