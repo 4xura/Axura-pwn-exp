@@ -16,8 +16,7 @@ uu64    = lambda data                 :u64(data.ljust(8, b"\0"))
 def g(gdbscript: str = ""):
     if mode["local"]:
         gdb.attach(p, gdbscript=gdbscript)
-
-
+        
     elif mode["remote"]:
         gdb.attach((remote_ip_addr, remote_port), gdbscript)
         if gdbscript == "":
@@ -154,7 +153,6 @@ if __name__ == '__main__':
                 "LD_PRELOAD": os.path.abspath(LIBC_PATH),
                 "LD_LIBRARY_PATH": os.path.dirname(os.path.abspath(LIBC_PATH))
             }
-            ln = os.path.join(os.path.dirname(os.path.abspath(LIBC_PATH)), "ld-linux-x86-64.so.2")
         p   = process(FILE_PATH, env=env)
         mode["local"] = True
     else:
