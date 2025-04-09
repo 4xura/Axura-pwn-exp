@@ -15,12 +15,8 @@ uu64    = lambda data                 :u64(data.ljust(8, b"\0"))
 
 def g(gdbscript: str = ""):
     if mode["local"]:
-        sysroot = None
-        if libc_path != "":
-            sysroot = os.path.dirname(libc_path)
-        gdb.attach(p, gdbscript=gdbscript, sysroot=sysroot)
-        if gdbscript == "":
-            raw_input()
+        gdb.attach(p, gdbscript=gdbscript)
+
 
     elif mode["remote"]:
         gdb.attach((remote_ip_addr, remote_port), gdbscript)
@@ -128,15 +124,14 @@ def exp():
 
 if __name__ == '__main__':
 
-    file_path = ""
-    libc_path = ""
-    ld_path   = ""
+    FILE_PATH = ""
+    LIBC_PATH = ""
 
     context(arch="amd64", os="linux", endian="little")
     context.log_level = "debug"
-    #context.terminal  = ['tmux', 'splitw', '-h']    # ['<terminal_emulator>', '-e', ...]
+    context.terminal  = ['tmux', 'splitw', '-h']    # ['<terminal_emulator>', '-e', ...]
 
-    e    = ELF(file_path, checksec=False)
+    e    = ELF(FILE_PATH, checksec=False)
     mode = {"local": False, "remote": False, }
     env  = None
 
@@ -145,21 +140,22 @@ if __name__ == '__main__':
                 "  - Provide <ip> and <port> to target a remote host.\n")
 
     if len(sys.argv) == 3:
-        if libc_path != "":
-            libc = ELF(libc_path)
+        if LIBC_PATH:
+            libc = ELF(LIBC_PATH)
         p = remote(sys.argv[1], int(sys.argv[2]))
         mode["remote"] = True
         remote_ip_addr = sys.argv[1]
         remote_port    = int(sys.argv[2])
+        
     elif len(sys.argv) == 1:
-        if libc_path != "":
-            libc = ELF(libc_path)
-            env  = {"LD_PRELOAD": libc_path}
-        if ld_path != "":
-            cmd = [ld_path, "--library-path", os.path.dirname(os.path.abspath(libc_path)), file_path]
-            p   = process(cmd, env=env)
-        else:
-            p = process(file_path, env=env)
+        if LIBC_PATH:
+            libc = ELF(LIBC_PATH)
+            env = {
+                "LD_PRELOAD": os.path.abspath(LIBC_PATH),
+                "LD_LIBRARY_PATH": os.path.dirname(os.path.abspath(LIBC_PATH))
+            }
+            ln = os.path.join(os.path.dirname(os.path.abspath(LIBC_PATH)), "ld-linux-x86-64.so.2")
+        p   = process(FILE_PATH, env=env)
         mode["local"] = True
     else:
         print("[-] Error: Invalid arguments provided.")
