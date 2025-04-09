@@ -48,7 +48,7 @@ class ROPGadgets:
             'leave_r'       : self.addr(['leave', 'ret']),
             'ret'           : self.addr(['ret']),
             'syscall_r'     : self.addr(['syscall', 'ret']),
-            'bin_sh'        : libc_base + next(libc.search(b'/bin/sh\x00'))
+            'bin_sh'        : libc_base + next(libc.search(b'/bin/sh\x00'), 0)
         }
 
     def __getitem__(self, k: str) -> int:
