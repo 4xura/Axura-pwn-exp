@@ -9,7 +9,7 @@ sl      = lambda data                 :p.sendline(data)
 sla     = lambda delim,data           :p.sendlineafter(delim, data)
 r       = lambda num=4096             :p.recv(num)
 ru      = lambda delim, drop=True     :p.recvuntil(delim, drop)
-l64     = lambda                      :u64(p.recvuntil("\x7f")[-6:].ljust(8,b"\x00"))
+l64     = lambda                      :u64(p.recvuntil(b"\x7f")[-6:].ljust(8,b"\x00"))
 uu64    = lambda data                 :u64(data.ljust(8, b"\0"))
 
 
@@ -94,16 +94,12 @@ class SafeLinking:
         return plain
 
 
-def int_to_bytes(n: int, length: int = 4) -> bytes:
-    return n.to_bytes(length, 'little')
-
-
-def bytes_to_int(b: bytes) -> int:
-    return int.from_bytes(b, 'little')
+def a2b(a: int) -> bytes:
+    return str(a).encode()
 
 
 def menu(n: int):
-    opt = int_to_bytes(n)
+    opt = a2b(n)
     pass
 
 
