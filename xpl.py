@@ -88,12 +88,12 @@ class SafeLinking:
         return plain
 
 
-def a2b(a: int) -> bytes:
+def itoa(a: int) -> bytes:
     return str(a).encode()
 
 
 def menu(n: int):
-    opt = a2b(n)
+    opt = itoa(n)
     pass
 
 
