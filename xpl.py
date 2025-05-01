@@ -43,6 +43,8 @@ class ROPGadgets:
             'leave_r'       : self.addr(['leave', 'ret']),
             'ret'           : self.addr(['ret']),
             'syscall_r'     : self.addr(['syscall', 'ret']),
+            'p_rsp_r'       : self.addr(['pop rsp', 'ret']),
+            'p_rsp_jmp_rax' : self.addr([r'^pop rsp ; .*jmp rax']),
         }
 
     def __getitem__(self, k: str) -> int:
