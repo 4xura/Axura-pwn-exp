@@ -32,23 +32,22 @@ def pa(addr: int) -> None:
 
 class ROPGadgets:
     def __init__(self, libc: ELF, libc_base: int): 
-        rop = ROP(libc)
-        self.addr = lambda x: libc_base + rop.find_gadget(x)[0] if rop.find_gadget(x) else None
+        self.rop = ROP(libc)
+        self.addr = lambda x: libc_base + self.rop.find_gadget(x)[0] if rop.find_gadget(x) else None
 
-        self.gg = {
+        self.ggs = {
             'p_rdi_r'       : self.addr(['pop rdi', 'ret']),
             'p_rsi_r'       : self.addr(['pop rsi', 'ret']),
             'p_rdx_rbx_r'   : self.addr(['pop rdx', 'pop rbx', 'ret']),
             'p_rax_r'       : self.addr(['pop rax', 'ret']),
+            'p_rsp_r'       : self.addr(['pop rsp', 'ret']),
             'leave_r'       : self.addr(['leave', 'ret']),
             'ret'           : self.addr(['ret']),
             'syscall_r'     : self.addr(['syscall', 'ret']),
-            'p_rsp_r'       : self.addr(['pop rsp', 'ret']),
-            'p_rsp_jmp_rax' : self.addr([r'^pop rsp ; .*jmp rax']),
         }
 
     def __getitem__(self, k: str) -> int:
-        return self.gg.get(k)
+        return self.ggs.get(k)
 
 
 class PointerGuard:
