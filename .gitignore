@@ -8,6 +8,11 @@ __pycache__/
 *.pyo
 *.pyd
 
+# === Scripts ===
+scripts/*.log
+scripts/*.out
+scripts/*~
+
 # === Editor/IDE Files ===
 *~
 *.swp
