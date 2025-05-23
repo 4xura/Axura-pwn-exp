@@ -16,7 +16,7 @@
 # Example:
 #   ./compress.sh exploit.c
 #   ./compress.sh exploit.c custom_name
-#
+# --------------------------------------------------------------------------
 
 set -euo pipefail
 
