@@ -1,5 +1,5 @@
-#ifndef EXPLOIT_UTILS_H
-#define EXPLOIT_UTILS_H
+#ifndef XPL_UTILS_H
+#define XPL_UTILS_H
 
 
 #include <stdint.h>     // Integer types: uint64_t, int32_t, ...
@@ -72,4 +72,4 @@ int open_dev(const char *path, int flags);
 
 #define SYSCALL_ERR(name) do { perror(name); exit(errno); } while (0)
 
-#endif // EXPLOIT_UTILS.H
+#endif // XPL_UTILS.H

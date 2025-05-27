@@ -1,6 +1,6 @@
 CC      = gcc
 CFLAGS  = -Wall -Wextra -O2 -g -Iinclude
-TARGET  = exploit
+TARGET  = xpl
 
 SRCS    = $(wildcard *.c)
 OBJS    = $(SRCS:.c=.o)

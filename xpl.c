@@ -4,7 +4,7 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <string.h> 
-#include "exploit_utils.h"
+#include "xpl_utils.h"
 
 /* Configurations */
 #define DEVICE_PATH     "/dev/vulndev"
