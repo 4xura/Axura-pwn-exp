@@ -4,6 +4,7 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <string.h> 
+#include <unistd.h>
 #include "xpl_utils.h"
 
 /* Configurations */
