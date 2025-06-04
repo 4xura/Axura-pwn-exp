@@ -59,6 +59,12 @@ project-root/
 
 ### Scripts
 
+Suggest run scripts under project root directory, namely for example:
+
+```sh
+bash scripts/run-serial.sh
+```
+
 The `scripts/` folder contains utility scripts used to assist with compiling, extracting, and booting pwn lab environment:
 
 - **`extract-image.sh`** – Extracts a raw disk image (e.g. `vmlinux`) for manual patching or inspection from a compressed kernel (e.g. `vmlinuz`).
