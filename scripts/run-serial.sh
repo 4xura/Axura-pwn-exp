@@ -40,37 +40,37 @@ QEMU="qemu-system-x86_64"
 DEBUG=0
 
 usage() {
-  echo "Usage: $0 [options]"
-  echo ""
-  echo "Options:"
-  echo "  --kernel PATH       Path to kernel image (default: $KERNEL)"
-  echo "  --initrd PATH       Path to initramfs (default: $INITRD)"
-  echo "  --mem SIZE          Memory size (default: $MEM)"
-  echo "  --cpu STRING        QEMU CPU model (default: $CPU)"
-  echo "  --hdb FILE          Second hard disk image (default: $HDB)"
-  echo "  --append ARGS       Kernel command-line arguments"
-  echo "  --debug             Enable QEMU debug output"
-  echo "  -h, --help          Show this help message"
-  exit 1
+	echo "Usage: $0 [options]"
+	echo ""
+	echo "Options:"
+	echo "  --kernel PATH       Path to kernel image (default: $KERNEL)"
+	echo "  --initrd PATH       Path to initramfs (default: $INITRD)"
+	echo "  --mem SIZE          Memory size (default: $MEM)"
+	echo "  --cpu STRING        QEMU CPU model (default: $CPU)"
+	echo "  --hdb FILE          Second hard disk image (default: $HDB)"
+	echo "  --append ARGS       Kernel command-line arguments"
+	echo "  --debug             Enable QEMU debug output"
+	echo "  -h, --help          Show this help message"
+	exit 1
 }
 
 log() {
-  echo "[*] $*"
+	echo "[*] $*"
 }
 
 # Argument parsing
 while [[ $# -gt 0 ]]; do
-  case $1 in
-    --kernel) KERNEL="$2"; shift 2 ;;
-    --initrd) INITRD="$2"; shift 2 ;;
-    --mem)    MEM="$2"; shift 2 ;;
-    --cpu)    CPU="$2"; shift 2 ;;
-    --hdb)    HDB="$2"; shift 2 ;;
-    --append) APPEND="$2"; shift 2 ;;
-    --debug)  DEBUG=1; shift ;;
-    -h|--help) usage ;;
-    *) echo "[!] Unknown option: $1"; usage ;;
-  esac
+	case $1 in
+		--kernel) KERNEL="$2"; shift 2 ;;
+		--initrd) INITRD="$2"; shift 2 ;;
+		--mem)    MEM="$2"; shift 2 ;;
+		--cpu)    CPU="$2"; shift 2 ;;
+		--hdb)    HDB="$2"; shift 2 ;;
+		--append) APPEND="$2"; shift 2 ;;
+		--debug)  DEBUG=1; shift ;;
+		-h|--help) usage ;;
+		*) echo "[!] Unknown option: $1"; usage ;;
+	esac
 done
 
 # Validations
@@ -89,14 +89,14 @@ log "Append : $APPEND"
 sleep 1
 
 $QEMU \
-  -cpu "$CPU" \
-  -m "$MEM" \
-  -kernel "$KERNEL" \
-  -initrd "$INITRD" \
-  -hdb "$HDB" -snapshot \
-  -nographic \
-  -append "$APPEND" \
-  -monitor /dev/null \
-  -serial mon:stdio \
-  -no-reboot \
-  $([ "$DEBUG" -eq 1 ] && echo "-d int,cpu_reset,guest_errors")
+	-cpu "$CPU" \
+	-m "$MEM" \
+	-kernel "$KERNEL" \
+	-initrd "$INITRD" \
+	-hdb "$HDB" -snapshot \
+	-nographic \
+	-append "$APPEND" \
+	-monitor /dev/null \
+	-serial mon:stdio \
+	-no-reboot \
+	$([ "$DEBUG" -eq 1 ] && echo "-d int,cpu_reset,guest_errors")
