@@ -104,5 +104,6 @@ $QEMU \
   -m "$MEM" \
   -nographic \
   -serial mon:stdio \
-  ${DEBUG:+-d int,cpu_reset,guest_errors} \
-  -no-reboot
+  -no-reboot \
+  $([ "$DEBUG" -eq 1 ] && echo "-d int,cpu_reset,guest_errors")
+
