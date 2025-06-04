@@ -2,36 +2,36 @@
 
 ```c
 project-root/
-├── xpl.py				// Exploit script for userland pwn (Python)
+├── xpl.py              // Exploit script for userland pwn (Python)
 │
-├── xpl.c				// Kernel exploit entry point (C)
+├── xpl.c               // Kernel exploit entry point (C)
 │
-├── Makefile			// Build options: default, debug, static, release
+├── Makefile            // Build options: default, debug, static, release
 │
-├── include/			// Shared headers
-│   └── xpl-utils.h		// Common macros & helpers (e.g., DIE(), hexdump(), etc.)
+├── include/            // Shared headers
+│   └── xpl-utils.h	    // Common macros & helpers (e.g., DIE(), hexdump(), etc.)
 │
-├── src/				// Modular exploit components (optional)
-│   ├── xpl.c			// (Alternative) Exploit logic placed under src/
+├── src/                // Modular exploit components (optional)
+│   ├── xpl.c           // (Alternative) Exploit logic placed under src/
 │   ├── helper.c 
 │   └── ...
 │
-├── build/				// Auto-generated object files
-│   ├── xpl.o			// From root xpl.c or src/xpl.c
-│   ├── helper.o		// From src/helper.c
-│   └── ...				// Other compiled .o files
+├── build/              // Auto-generated object files
+│   ├── xpl.o           // From root xpl.c or src/xpl.c
+│   ├── helper.o        // From src/helper.c
+│   └── ...             // Other compiled .o files
 │
-├── scripts/					// Helper automation and debugging scripts
-│   ├── extract-image.sh		// Extract contents from kernel image (vmlinuz, bzImage, etc.)
-│   ├── extract-initramfs.sh	// Unpack initramfs for modification or inspection
-│   ├── exploit-initramfs.sh	// Compile exploit binary and repackage it into initramfs.cpio.gz
-│   ├── run-serial.sh			// Launch QEMU with serial terminal
-│   ├── run-ret2user.sh			// Boot QEMU for ret2user-style kernel exploit testing\
-│   └── patch-alarm.py			// Patch alarm syscall
+├── scripts/                    // Helper automation and debugging scripts
+│   ├── extract-image.sh        // Extract contents from kernel image (vmlinuz, bzImage, etc.)
+│   ├── extract-initramfs.sh    // Unpack initramfs for modification or inspection
+│   ├── exploit-initramfs.sh    // Compile exploit binary and repackage it into initramfs.cpio.gz
+│   ├── run-serial.sh           // Launch QEMU with serial terminal
+│   ├── run-ret2user.sh         // Boot QEMU for ret2user-style kernel exploit testing\
+│   └── patch-alarm.py          // Patch alarm syscall
 │
-├── xpl					// Final compiled exploit binary
+├── xpl                 // Final compiled exploit binary
 │
-└── flag.txt			// Fake flag used for local testing
+└── flag.txt            // Fake flag used for local testing
 └── flag
 ```
 
