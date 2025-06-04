@@ -13,7 +13,7 @@
 #   ./run-ret2user.sh [options]
 #
 # Options:
-#   --kernel PATH       Kernel image (default: ./vmlinux)
+#   --kernel PATH       Kernel image (default: ./vmlinuz)
 #   --initrd PATH       Initramfs (default: ./initramfs.cpio.gz)
 #   --mem SIZE          Memory size (default: 256M)
 #   --cpu STRING        QEMU CPU model (default: qemu64,smep=off,smap=off)
@@ -25,7 +25,7 @@
 set -euo pipefail
 
 # Defaults
-KERNEL="./vmlinux"
+KERNEL="./vmlinuz"
 INITRD="./initramfs.cpio.gz"
 MEM="256M"
 CPU="kvm64,smep=off,smap=off"

