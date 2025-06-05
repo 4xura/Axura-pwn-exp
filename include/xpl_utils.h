@@ -24,7 +24,7 @@ extern unsigned long user_cs;
 extern unsigned long user_ss;
 extern unsigned long user_sp;
 extern unsigned long user_rflags;
-extern unsigned long user_rip;	// Set manually to function like spawn_shell()
+extern unsigned long user_rip;    // Set manually to function like spawn_shell()
 
 /* ===============================
  * Kernel exploit utilities
@@ -41,7 +41,7 @@ void        ret2user_trampoline(void) __attribute__((noreturn));
 /* Kernel stack exploit */
 uintptr_t   leak_cookie(int fd, size_t leak_slots, size_t cookie_offset);
 void        stack_overflow(int fd, uintptr_t cookie, uintptr_t ret_addr,
-                    		size_t cookie_offset, size_t pl_len);
+                            size_t cookie_offset, size_t pl_len);
 
 /* Get shell */
 void        spawn_shell(void);
