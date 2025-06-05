@@ -10,7 +10,7 @@ SRC_SRCS 	:= $(wildcard src/*.c)
 SRCS		:= $(ROOT_SRCS) $(SRC_SRCS)
 
 OBJS	:= $(patsubst %.c,      $(BUILD)/%.o, $(notdir $(ROOT_SRCS))) \
-			$(patsubst src/%.c,  $(BUILD)/%.o, $(notdir $(SRC_SRCS)))
+		$(patsubst src/%.c,  $(BUILD)/%.o, $(notdir $(SRC_SRCS)))
 
 all: $(BUILD) $(TARGET)
 
