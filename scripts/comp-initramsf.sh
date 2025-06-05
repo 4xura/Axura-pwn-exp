@@ -1,12 +1,12 @@
 #!/bin/sh
 # --------------------------------------------------------------------------
-# exploit-initramfs.sh - Build and package exploit into initramfs
+# comp-initramfs.sh - Build and package exploit into initramfs
 #
 # Author: Axura
 # Website: https://4xura.com
 #
 # Usage:
-#   ./exploit-initramfs.sh <exploit_source.c> [output_binary_name]
+#   ./comp-initramfs.sh <exploit_source.c> [output_binary_name]
 #
 # Description:
 #   - Compiles a statically linked exploit binary from the given C source
@@ -14,8 +14,8 @@
 #   - Packs the initramfs directory into 'initramfs.cpio.gz' using cpio+gzip
 #
 # Example:
-#   ./exploit-initramfs.sh xpl.c
-#   ./exploit-initramfs.sh xpl.c custom_name
+#   ./comp-initramfs.sh xpl.c
+#   ./comp-initramfs.sh xpl.c custom_name
 # --------------------------------------------------------------------------
 
 set -euo pipefail
