@@ -31,7 +31,7 @@ project-root/
 │
 ├── xpl                 // Final compiled exploit binary
 │
-└── flag.txt            // Fake flag used for local testing
+├── flag.txt            // Fake flags used for local testing
 └── flag
 ```
 
