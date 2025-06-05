@@ -8,17 +8,21 @@ project-root/
 │
 ├── Makefile            // Build options: default, debug, static, release
 │
-├── include/            // Shared headers
-│   └── xpl-utils.h     // Common macros & helpers (e.g., DIE(), hexdump(), etc.)
+├── include/                // Shared headers
+│   └── xpl_utils.h         // Common macros & helpers (e.g., DIE(), hexdump(), etc.)
+│   └── privesc.h           // Common macros & helpers (e.g., DIE(), hexdump(), etc.)
+│   └── stack_overflow.h    // Common macros & helpers (e.g., DIE(), hexdump(), etc.)
+│   └── ret2user.h          // Common macros & helpers (e.g., DIE(), hexdump(), etc.)
 │
 ├── src/                // Modular exploit components (optional)
 │   ├── (xpl.c)         // (Alternative) prefer to place main exploit script under src/
-│   ├── helper.c 
-│   └── ...
+│   ├── privesc.c 
+│   └── stack_overflow.c
+│   └── ret2user.c
 │
 ├── build/              // Auto-generated object files
 │   ├── xpl.o           // From root xpl.c or src/xpl.c
-│   ├── helper.o        // From src/helper.c
+│   ├── privesc.o        // From src/helper.c
 │   └── ...            
 │
 ├── scripts/                    // Helper automation and debugging scripts

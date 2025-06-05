@@ -1,6 +1,5 @@
-#ifndef XPL_UTILS_H
-#define XPL_UTILS_H
-
+#ifndef UTILS_H
+#define UTILS_H
 
 #include <cstddef>
 #include <cstdint>
@@ -16,46 +15,12 @@
 #include <errno.h>      // Standard error codes and errno handling
 #include <inttypes.h>   // Format macros for printing fixed-width types (e.g., PRIu64)
 
-/* ===============================
- * Gobal variables & structs
- * =============================== */
-
-// Userland context used for iretq transition
-struct iretq_user_ctx {
-    uintptr_t ss;
-    uintptr_t rsp;
-    uintptr_t rflags;
-    uintptr_t cs;
-    uintptr_t rip;
-};
-
-/* ===============================
- * Kernel exploit utilities
- * =============================== */
-
-/* Device Handling */
+/* Device interaction */
 int open_dev(const char *path, int flags);
+void hexdump(const char *label, const void *addr, size_t len); 
+void spawn_shell(void);
 
-/* Prvilege escalation */
-void privesc_kcred(uintptr_t commit_creds, uintptr_t prepare_kernel_cred);
-
-/* ret2user */
-struct iretq_user_ctx save_iretq_user_ctx(void (*rip_func)(void));
-void ret2user_trampoline(struct iretq_user_ctx *ctx) __attribute__((noreturn));
-
-/* Kernel stack exploit */
-uintptr_t leak_cookie(int fd, size_t leak_slots, size_t cookie_offset);
-void stack_overflow(int fd, 
-                    uintptr_t cookie, size_t cookie_offset,
-                    size_t pl_len,
-                    uintptr_t ret_addr);
-
-/* Get shell */
-void        spawn_shell(void);
-
-/* ===============================
- * Pointer & Memory Utilities
- * =============================== */
+/* Pointer & Memory Utilities */
 
 // Byte-offset pointer addition and subtraction
 #define PTR_ADD(ptr, off) ((void *)((uint8_t *)(ptr) + (off)))
@@ -71,38 +36,18 @@ void        spawn_shell(void);
 // Calculate byte distance between two pointers
 #define DISTANCE(ptr1, ptr2) ((ptrdiff_t)((uint8_t *)(ptr1) - (uint8_t *)(ptr2)))
 
-/* ===============================
- * Logging & Debugging
- * =============================== */
-
+/* Logging & Debugging */
 #define INFO(fmt, ...)      fprintf(stdout, "\033[34m[*] " fmt "\033[0m\n", ##__VA_ARGS__)
 #define SUCCESS(fmt, ...)   fprintf(stdout, "\033[32m[+] " fmt "\033[0m\n", ##__VA_ARGS__)
 #define FAILURE(fmt, ...)   fprintf(stderr, "\033[31m[-] " fmt "\033[0m\n", ##__VA_ARGS__)
 #define DIE(msg)            do { perror(msg); exit(EXIT_FAILURE); } while (0)
 
-// Print a hex dump of memory
-static inline void hexdump(const char *label, const void *addr, size_t len) {
-    const unsigned char *p = (const unsigned char *)addr;
-    printf("%s (%zu bytes):\n", label, len);
-    for (size_t i = 0; i < len; ++i) {
-        printf("%02x ", p[i]);
-        if ((i + 1) % 16 == 0) putchar('\n');
-    }
-    if (len % 16 != 0) putchar('\n');
-}
-
-/* ===============================
- * Assertions & Checks
- * =============================== */
-
+/* Assertions & Checks */
 #define ASSERT(x) do { if (!(x)) { FAILURE("[x] Assert failed: %s", #x); exit(1); } } while (0)
 #define IN_RANGE(addr, base, len) \
     ((uintptr_t)(addr) >= (uintptr_t)(base) && (uintptr_t)(addr) < (uintptr_t)(base) + (len))
 
-/* ===============================
- * Syscall Helpers
- * =============================== */
-
+/* Syscall Helpers */
 #define SYSCALL_ERR(name) do { perror(name); exit(errno); } while (0)
 
-#endif // XPL_UTILS.H
+#endif // UTILS.H
