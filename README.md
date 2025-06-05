@@ -10,9 +10,9 @@ project-root/
 │
 ├── include/                // Shared headers
 │   └── xpl_utils.h         // Common macros & helpers (e.g., DIE(), hexdump(), etc.)
-│   └── privesc.h           // Common macros & helpers (e.g., DIE(), hexdump(), etc.)
-│   └── stack_overflow.h    // Common macros & helpers (e.g., DIE(), hexdump(), etc.)
-│   └── ret2user.h          // Common macros & helpers (e.g., DIE(), hexdump(), etc.)
+│   └── privesc.h           // Privesc interface (e.g., commit_creds payloads)
+│   └── stack_overflow.h    // Cookie leaker, overflow primitives
+│   └── ret2user.h          // IRETQ trampoline, user context manager
 │
 ├── src/                // Modular exploit components (optional)
 │   ├── (xpl.c)         // (Alternative) prefer to place main exploit script under src/
@@ -21,9 +21,7 @@ project-root/
 │   └── ret2user.c
 │
 ├── build/              // Auto-generated object files
-│   ├── xpl.o           // From root xpl.c or src/xpl.c
-│   ├── privesc.o        // From src/helper.c
-│   └── ...            
+│   └── *.o             // Keeps artifacts isolated      
 │
 ├── scripts/                    // Helper automation and debugging scripts
 │   ├── extract-image.sh        // Extract contents from kernel image (vmlinuz, bzImage, etc.)
@@ -46,12 +44,8 @@ project-root/
 ### Kernel pwn:
 
 - **`xpl.c`**: This main exploit entry point (`main()`), typically crafted to trigger a vulnerability in a kernel module.
-- **`include/xpl-utils.h`**: Centralized header for shared macros (`DIE()`, `SUCCESS()`), helper functions (`hexdump()`), etc.
-- **`src/*.c`**: Optional for organizing auxiliary components here, e.g.:
-  - `leaker.c` – leak kernel pointers
-  - `payload.c` – ROP chain construction
-  - `resolve.c` – parse `/proc/kallsyms` or gadget resolution
-  - …
+- **`include/`**: Contains headers for reusable components. Each `.h` defines the API for its corresponding `.c` module under `src/`.
+- **`src/*.c`**: Modular C implementations for each major exploit component. These files are cleanly separated and easy to reuse across different kernel exploit chains.
 - **`build/`**: Auto-generated directory for `.o` files (one per `.c` file). Keeps root clean and build artifacts separated.
 - **`Makefile`**: Flexible build system supporting different modes:
   - `make` – Default build for local testing (optimized, no debug info)
