@@ -2,15 +2,15 @@ CC      = gcc
 CFLAGS 	?= -Wall -Wextra -O2 -Iinclude
 LDFLAGS ?=
 
-TARGET	?= xpl
+TARGET ?= xpl
 BUILD   = build
 
-ROOT_SRCS	:= $(wildcard *.c)
-SRC_SRCS 	:= $(wildcard src/*.c)
-SRCS		:= $(ROOT_SRCS) $(SRC_SRCS)
+ROOT_SRCS := $(wildcard *.c)
+SRC_SRCS  := $(wildcard src/*.c)
+SRCS      := $(ROOT_SRCS) $(SRC_SRCS)
 
-OBJS	:= $(patsubst %.c,      $(BUILD)/%.o, $(notdir $(ROOT_SRCS))) \
-		$(patsubst src/%.c,  $(BUILD)/%.o, $(notdir $(SRC_SRCS)))
+OBJS := $(patsubst %.c,      $(BUILD)/%.o, $(notdir $(ROOT_SRCS))) \
+        $(patsubst src/%.c,  $(BUILD)/%.o, $(notdir $(SRC_SRCS)))
 
 all: $(BUILD) $(TARGET)
 
