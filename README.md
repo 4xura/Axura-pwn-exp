@@ -24,7 +24,7 @@ project-root/
 ├── scripts/                    // Helper automation and debugging scripts
 │   ├── extract-image.sh        // Extract contents from kernel image (vmlinuz, bzImage, etc.)
 │   ├── extract-initramfs.sh    // Unpack initramfs for modification or inspection
-│   ├── exploit-initramfs.sh    // Compile exploit binary and repackage it into initramfs.cpio.gz
+│   ├── comp-initramfs.sh    // Compile exploit binary and repackage it into initramfs.cpio.gz
 │   ├── run-serial.sh           // Launch QEMU with serial terminal
 │   ├── run-ret2user.sh         // Boot QEMU for ret2user-style kernel exploit testing\
 │   └── patch-alarm.py          // Patch alarm syscall
@@ -69,7 +69,7 @@ The `scripts/` folder contains utility scripts used to assist with compiling, ex
 
 - **`extract-image.sh`** – Extracts a raw disk image (e.g. `vmlinux`) for manual patching or inspection from a compressed kernel (e.g. `vmlinuz`).
 - **`extract-initramfs.sh`** – Unpacks a gzipped `initramfs.cpio.gz` for manual modifications.
-- **`exploit-initramfs.sh`** – Compiles exploit (statically), moves it into the extracted `initramfs/`, and repacks it into `initramfs.cpio.gz`.
+- **`comp-initramfs.sh`** – Compiles exploit (statically), moves it into the extracted `initramfs/`, and repacks it into `initramfs.cpio.gz`.
 - **`run-serial.sh`** – Starts a QEMU guest with kernel serial output (good for debugging with `-nographic`).
 - **`run-ret2user.sh`** – Starts a preconfigured QEMU instance for local kernel ret2usr-style exploitation.
 - **`patch-alarm.py`** – Custom patch ELF script to bypass the annoying alarm syscall for debugging.

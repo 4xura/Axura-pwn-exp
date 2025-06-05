@@ -59,7 +59,7 @@ uintptr_t leak_cookie(int fd, size_t leak_slots, size_t cookie_offset)
 	hexdump("Leaks", leaks, leak_slots * sizeof(uintptr_t));
 
     uintptr_t cookie = leaks[cookie_offset / sizeof(uintptr_t)];
-	SUCCESS("Read %d (0x%x) bytes from device; cookie = 0x%lx @ offset 0x%x (slot #%zu)",
+	SUCCESS("Read %zd (0x%x) bytes from device; cookie = 0x%lx @ offset 0x%x (slot #%zu)",
 			nread, nread, (unsigned long)cookie, cookie_offset, cookie_offset / sizeof(uintptr_t));
 
     free(leaks);
