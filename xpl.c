@@ -17,7 +17,7 @@
 
 int         open_dev(const char *path, int flags);
 uintptr_t   leak_cookie(int fd, size_t leak_slots, size_t cookie_offset);
-void        tack_overflow(int fd, uintptr_t cookie, uintptr_t ret_addr,
+void        stack_overflow(int fd, uintptr_t cookie, uintptr_t ret_addr,
                     		size_t cookie_offset, size_t pl_len);
 void        spawn_shell(void);
 
