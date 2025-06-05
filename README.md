@@ -9,7 +9,7 @@ project-root/
 ├── Makefile            // Build options: default, debug, static, release
 │
 ├── include/            // Shared headers
-│   └── xpl-utils.h	    // Common macros & helpers (e.g., DIE(), hexdump(), etc.)
+│   └── xpl-utils.h        // Common macros & helpers (e.g., DIE(), hexdump(), etc.)
 │
 ├── src/                // Modular exploit components (optional)
 │   ├── (xpl.c)         // (Alternative) prefer to place main exploit script under src/
