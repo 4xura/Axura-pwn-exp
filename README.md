@@ -9,7 +9,7 @@ project-root/
 ├── Makefile            // Build options: default, debug, static, release
 │
 ├── include/            // Shared headers
-│   └── xpl-utils.h        // Common macros & helpers (e.g., DIE(), hexdump(), etc.)
+│   └── xpl-utils.h     // Common macros & helpers (e.g., DIE(), hexdump(), etc.)
 │
 ├── src/                // Modular exploit components (optional)
 │   ├── (xpl.c)         // (Alternative) prefer to place main exploit script under src/
@@ -24,7 +24,7 @@ project-root/
 ├── scripts/                    // Helper automation and debugging scripts
 │   ├── extract-image.sh        // Extract contents from kernel image (vmlinuz, bzImage, etc.)
 │   ├── extract-initramfs.sh    // Unpack initramfs for modification or inspection
-│   ├── comp-initramfs.sh    // Compile exploit binary and repackage it into initramfs.cpio.gz
+│   ├── comp-initramfs.sh       // Compile exploit binary and repackage it into initramfs.cpio.gz
 │   ├── run-serial.sh           // Launch QEMU with serial terminal
 │   ├── run-ret2user.sh         // Boot QEMU for ret2user-style kernel exploit testing\
 │   └── patch-alarm.py          // Patch alarm syscall

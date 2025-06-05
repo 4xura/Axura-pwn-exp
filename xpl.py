@@ -16,7 +16,7 @@ uu64    = lambda data                 :u64(data.ljust(8, b"\0"))
 def g(gdbscript: str = ""):
     if mode["local"]:
         gdb.attach(p, gdbscript=gdbscript)
-        
+
     elif mode["remote"]:
         gdb.attach((remote_ip_addr, remote_port), gdbscript)
         if gdbscript == "":
@@ -145,7 +145,7 @@ if __name__ == '__main__':
         mode["remote"] = True
         remote_ip_addr = sys.argv[1]
         remote_port    = int(sys.argv[2])
-        
+
     elif len(sys.argv) == 1:
         if LIBC_PATH:
             libc = ELF(LIBC_PATH)
