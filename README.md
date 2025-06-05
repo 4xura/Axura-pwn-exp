@@ -12,14 +12,14 @@ project-root/
 │   └── xpl-utils.h	    // Common macros & helpers (e.g., DIE(), hexdump(), etc.)
 │
 ├── src/                // Modular exploit components (optional)
-│   ├── xpl.c           // (Alternative) Exploit logic placed under src/
+│   ├── (xpl.c)         // (Alternative) prefer to place main exploit script under src/
 │   ├── helper.c 
 │   └── ...
 │
 ├── build/              // Auto-generated object files
 │   ├── xpl.o           // From root xpl.c or src/xpl.c
 │   ├── helper.o        // From src/helper.c
-│   └── ...             // Other compiled .o files
+│   └── ...            
 │
 ├── scripts/                    // Helper automation and debugging scripts
 │   ├── extract-image.sh        // Extract contents from kernel image (vmlinuz, bzImage, etc.)
@@ -73,28 +73,4 @@ The `scripts/` folder contains utility scripts used to assist with compiling, ex
 - **`run-serial.sh`** – Starts a QEMU guest with kernel serial output (good for debugging with `-nographic`).
 - **`run-ret2user.sh`** – Starts a preconfigured QEMU instance for local kernel ret2usr-style exploitation.
 - **`patch-alarm.py`** – Custom patch ELF script to bypass the annoying alarm syscall for debugging.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

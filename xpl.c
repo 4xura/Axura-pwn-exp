@@ -16,9 +16,9 @@
 #define VULN_IOCTL_EXEC  _IO(0x1337, 3)
 
 int			open_dev(const char *path, int flags);
-uintptr_t	leak_cookie(int fd, size_t leak_slots, size_t cookie_offset)
+uintptr_t	leak_cookie(int fd, size_t leak_slots, size_t cookie_offset);
 void		stack_overflow(int fd, uintptr_t cookie, uintptr_t ret_addr,
-                    		size_t cookie_offset, size_t pl_len)
+                    		size_t cookie_offset, size_t pl_len);
 void		spawn_shell(void);
 
 int main(void)

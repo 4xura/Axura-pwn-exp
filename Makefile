@@ -5,22 +5,12 @@ LDFLAGS ?=
 TARGET	?= xpl
 BUILD   = build
 
-# Prefer src/xpl.c if it exists
-ifeq ($(wildcard src/xpl.c),src/xpl.c)
-    MAIN_SRC = src/xpl.c
-else
-    MAIN_SRC = xpl.c
-endif
+ROOT_SRCS	:= $(wildcard *.c)
+SRC_SRCS 	:= $(wildcard src/*.c)
+SRCS		:= $(ROOT_SRCS) $(SRC_SRCS)
 
-# Other source files
-ROOT_SRCS := $(filter-out $(MAIN_SRC), $(wildcard *.c))
-SRC_SRCS  := $(filter-out src/xpl.c, $(wildcard src/*.c))
-SRCS      := $(MAIN_SRC) $(ROOT_SRCS) $(SRC_SRCS)
-
-# Object file mapping
-OBJS := $(patsubst %.c,      $(BUILD)/%.o,      $(notdir $(ROOT_SRCS))) \
-        $(patsubst src/%.c,  $(BUILD)/%.o,      $(SRC_SRCS:src/%=%))    \
-        $(BUILD)/$(notdir $(MAIN_SRC:.c=.o))
+OBJS	:= $(patsubst %.c,      $(BUILD)/%.o, $(notdir $(ROOT_SRCS))) \
+			$(patsubst src/%.c,  $(BUILD)/%.o, $(notdir $(SRC_SRCS)))
 
 all: $(BUILD) $(TARGET)
 
