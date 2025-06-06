@@ -10,7 +10,7 @@ void privesc_kcred(uintptr_t commit_creds,
                    uintptr_t prepare_kernel_cred,
                    void (*jmp_ret)(void));
 
-/* Wrapper that sets up globals for privesc_kcred() */
-void privesc_wrapper(void);
+/* Wrapper that sets up globals for privesc functions */
+void privesc(void);
 
 #endif  // PRIVESC_H

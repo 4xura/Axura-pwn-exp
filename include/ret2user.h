@@ -21,7 +21,7 @@ struct iretq_user_ctx save_iretq_user_ctx(void (*rip_func)(void));
 void ret2user_trampoline(struct iretq_user_ctx *ctx) __attribute__((noreturn));
 
 /* Optional: ret2user wrapper (for global context use) */
-void ret2user_wrapper(void) __attribute__((noreturn));
+void ret2user(void) __attribute__((noreturn));
 
 #endif  // RET2USER_H
 
