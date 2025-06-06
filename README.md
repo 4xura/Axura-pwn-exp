@@ -9,7 +9,7 @@ project-root/
 ├── Makefile            // Build options: default, debug, static, release
 │
 ├── include/                // Shared headers
-│   └── xpl_utils.h         // Common macros & helpers (e.g., DIE(), hexdump(), etc.)
+│   └── utils.h             // Common macros & helpers (e.g., DIE(), hexdump(), etc.)
 │   └── privesc.h           // Privesc interface (e.g., commit_creds payloads)
 │   └── stack_overflow.h    // Cookie leaker, overflow primitives
 │   └── ret2user.h          // IRETQ trampoline, user context manager
@@ -24,12 +24,12 @@ project-root/
 │   └── *.o             // Keeps artifacts isolated      
 │
 ├── scripts/                    // Helper automation and debugging scripts
-│   ├── extract-image.sh        // Extract contents from kernel image (vmlinuz, bzImage, etc.)
-│   ├── extract-initramfs.sh    // Unpack initramfs for modification or inspection
-│   ├── comp-initramfs.sh       // Compile exploit binary and repackage it into initramfs.cpio.gz
-│   ├── run-serial.sh           // Launch QEMU with serial terminal
-│   ├── run-ret2user.sh         // Boot QEMU for ret2user-style kernel exploit testing\
-│   └── patch-alarm.py          // Patch alarm syscall
+│   ├── extract_image.sh        // Extract contents from kernel image (vmlinuz, bzImage, etc.)
+│   ├── extract_initramfs.sh    // Unpack initramfs for modification or inspection
+│   ├── comp_initramfs.sh       // Compile exploit binary and repackage it into initramfs.cpio.gz
+│   ├── run_serial.sh           // Launch QEMU with serial terminal
+│   ├── run_ret2user.sh         // Boot QEMU for ret2user-style kernel exploit testing\
+│   └── patch_alarm.py          // Patch alarm syscall
 │
 ├── xpl                 // Final compiled exploit binary
 │
@@ -60,15 +60,15 @@ project-root/
 Suggest run scripts under project root directory, namely for example:
 
 ```sh
-bash scripts/run-serial.sh
+bash scripts/run_serial.sh
 ```
 
 The `scripts/` folder contains utility scripts used to assist with compiling, extracting, and booting pwn lab environment:
 
-- **`extract-image.sh`** – Extracts a raw disk image (e.g. `vmlinux`) for manual patching or inspection from a compressed kernel (e.g. `vmlinuz`).
-- **`extract-initramfs.sh`** – Unpacks a gzipped `initramfs.cpio.gz` for manual modifications.
-- **`comp-initramfs.sh`** – Compiles exploit (statically), moves it into the extracted `initramfs/`, and repacks it into `initramfs.cpio.gz`.
-- **`run-serial.sh`** – Starts a QEMU guest with kernel serial output (good for debugging with `-nographic`).
-- **`run-ret2user.sh`** – Starts a preconfigured QEMU instance for local kernel ret2usr-style exploitation.
-- **`patch-alarm.py`** – Custom patch ELF script to bypass the annoying alarm syscall for debugging.
+- **`extract_image.sh`** – Extracts a raw disk image (e.g. `vmlinux`) for manual patching or inspection from a compressed kernel (e.g. `vmlinuz`).
+- **`extract_initramfs.sh`** – Unpacks a gzipped `initramfs.cpio.gz` for manual modifications.
+- **`comp_initramfs.sh`** – Compiles exploit (statically), moves it into the extracted `initramfs/`, and repacks it into `initramfs.cpio.gz`.
+- **`run_serial.sh`** – Starts a QEMU guest with kernel serial output (good for debugging with `-nographic`).
+- **`run_ret2user.sh`** – Starts a preconfigured QEMU instance for local kernel ret2usr-style exploitation.
+- **`patch_alarm.py`** – Custom patch ELF script to bypass the annoying alarm syscall for debugging.
 
