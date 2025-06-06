@@ -27,7 +27,7 @@ $(BUILD)/%.o: src/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 debug:
-	$(MAKE) CFLAGS="-Wall -Wextra -Og -g -DDEBUG -Iinclude" LDFLAGS=
+	$(MAKE) CFLAGS="-Wall -Wextra -O0 -g -DDEBUG -Iinclude" LDFLAGS=
 
 static:
 	$(MAKE) CFLAGS="$(CFLAGS)" LDFLAGS="-static"
