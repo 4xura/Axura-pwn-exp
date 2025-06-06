@@ -1,5 +1,5 @@
 CC       = gcc
-CFLAGS 	?= -Wall -Wextra -O2 -Iinclude
+CFLAGS	?= -Wall -Wextra O0 -Iinclude
 LDFLAGS ?=
 
 TARGET ?= xpl
