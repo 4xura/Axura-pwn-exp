@@ -17,6 +17,7 @@
 #define VULN_IOCTL_WRITE _IOW(0x1337, 2, char *)
 #define VULN_IOCTL_EXEC  _IO(0x1337, 3)
 
+/* Exploit Entry */
 int main(void)
 {
     int fd = open_dev(DEVICE_PATH, O_RDWR);

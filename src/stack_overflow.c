@@ -1,5 +1,5 @@
 #include "stack_overflow.h"
-#include "xpl_utils.h"
+#include "utils.h"
 
 /* Leak kernel stack cookie */
 uintptr_t leak_cookie(int fd, size_t leak_slots, size_t cookie_offset)

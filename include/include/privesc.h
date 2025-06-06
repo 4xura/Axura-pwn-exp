@@ -11,6 +11,11 @@ void privesc_kcred(uintptr_t commit_creds,
                    uintptr_t prepare_kernel_cred,
                    void (*jmp_ret)(void));
 
+// For debugging user
+void privesc_kcred_test(uintptr_t commit_creds,
+                   uintptr_t prepare_kernel_cred);
+void ret_asm_test(void);
+
 /* Wrapper that sets up globals for privesc functions */
 void privesc(void);
 
