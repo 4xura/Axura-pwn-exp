@@ -33,7 +33,7 @@ static:
 	$(MAKE) CFLAGS="$(CFLAGS)" LDFLAGS="-static"
 
 release:
-	$(MAKE) CFLAGS="-Wall -Wextra -O2 -Iinclude" LDFLAGS="-static"
+	$(MAKE) CFLAGS="-Wall -Wextra -Iinclude" LDFLAGS="-static"
 
 strip:
 	strip $(TARGET)
