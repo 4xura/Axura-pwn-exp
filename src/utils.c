@@ -32,7 +32,7 @@ void hexdump(const char *label, const void *addr, size_t len)
 }
 
 /* Spawn root shell if uid == 0 */
-void _get_shell(const char *mode)
+void get_shell(const char *mode)
 {   /* Use get_shell() wrapper to pass function ptr */
     if (!mode || strlen(mode) == 0) {
         FAILURE("No mode specified for shell execution\n");

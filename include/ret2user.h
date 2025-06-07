@@ -65,12 +65,14 @@ prepare_iretq_frame(uintptr_t frame[5], iretq_user_ctx ctx);
  * push user_rip
  * iretq
  *      
- * But here we use a trick to fake a stackframe,
+ * But we prefer using a trick to fake a stackframe,
  *      and pass its address to rsp directly,
  *      to avoid register clobbers in the asm
  * */
 void
-ret2user_iretq(void) __attribute__((noreturn));  
+ret2user_iretq(void) __attribute__((noreturn)); // global stackframe 
+void
+_ret2user_iretq(iretq_user_ctx ctx) __attribute__((noreturn));    // Use struct
 
 /* Dump iretq user context like a virtual stack layout */
 void

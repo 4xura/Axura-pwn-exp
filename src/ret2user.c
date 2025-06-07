@@ -41,15 +41,48 @@ prepare_iretq_frame(uintptr_t frame[5], iretq_user_ctx ctx)
     frame[4] = ctx.ss;
 }
 
+/* Call iretq to return to user spacea 
+ *      Either we pass a global fake stack frame (suggest)
+ *      or pass the iretq ctx structure for the required regs
+ *          - which may raise clobbers in asm
+ * */
+
+/* Passing a global fake stack frame for iretq call */
 __attribute__((noreturn))
 void ret2user_iretq(void)
 {
     __asm__ __volatile__ (
         ".intel_syntax noprefix;"
         "swapgs;"
+        /*"lea rsp, g_iretq_frame;"*/
         "lea rsp, g_iretq_frame;"
         "iretq;"
         ".att_syntax;"
+    );
+
+    __builtin_unreachable();
+}
+
+/* Passing iretq ctx members as arguments */
+__attribute__((noreturn))
+void _ret2user_iretq(iretq_user_ctx ctx) {
+    __asm__ __volatile__ (
+        ".intel_syntax noprefix;"
+        "swapgs;"
+        "mov r15, %[ss]; push r15;"
+        "mov r15, %[rsp]; push r15;"
+        "mov r15, %[rf]; push r15;"
+        "mov r15, %[cs]; push r15;"
+        "mov r15, %[rip]; push r15;"
+        "iretq;"
+        ".att_syntax;"
+        :
+        : [ss]  "r"(ctx.ss),
+          [rsp] "r"(ctx.rsp),
+          [rf]  "r"(ctx.rflags),
+          [cs]  "r"(ctx.cs),
+          [rip] "r"(ctx.rip)
+        : "r15", "rax", "rdi", "rsi", "rdx", "rcx"
     );
 
     __builtin_unreachable();

