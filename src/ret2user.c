@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdint.h>
+#include <sys/types.h>
 #include "ret2user.h"
 #include "utils.h"
 
@@ -29,54 +30,26 @@ struct iretq_user_ctx save_iretq_user_ctx(void (*rip_func)(void))
     return ctx;
 }
 
-/* return2user via iretq */
-__attribute__((noreturn))
-void _ret2user_trampoline(struct iretq_user_ctx *ctx)
+/* Prepare a stackframe before returning from iretq */
+void
+prepare_iretq_frame(uintptr_t frame[5], iretq_user_ctx ctx)
 {
-    __asm__ __volatile__ (
-        ".intel_syntax noprefix;"
-        "swapgs;"
-        "mov r15, %0;"
-        "push r15;"         // user_ss
-        "mov r15, %1;"
-        "push r15;"         // user_rsp
-        "mov r15, %2;"
-        "push r15;"         // user_rflags
-        "mov r15, %3;"
-        "push r15;"         // user_cs
-        "mov r15, %4;"
-        "push r15;"         // user_rip
-        "iretq;"
-        ".att_syntax;"
-        :
-        : "r"(ctx->ss), "r"(ctx->rsp), "r"(ctx->rflags), "r"(ctx->cs), "r"(ctx->rip)
-        : "memory", "r15"
-    );
-
-    __builtin_unreachable();
+    frame[0] = ctx.rip;
+    frame[1] = ctx.cs;
+    frame[2] = ctx.rflags;
+    frame[3] = ctx.rsp;
+    frame[4] = ctx.ss;
 }
 
 __attribute__((noreturn))
-void ret2user_trampoline(void)
+void ret2user_iretq(void)
 {
     __asm__ __volatile__ (
-        ".intel_syntax noprefix;"
         "swapgs;"
-        "mov r15, %0;"
-        "push r15;"         // user_ss
-        "mov r15, %1;"
-        "push r15;"         // user_rsp
-        "mov r15, %2;"
-        "push r15;"         // user_rflags
-        "mov r15, %3;"
-        "push r15;"         // user_cs
-        "mov r15, %4;"
-        "push r15;"         // user_rip
+        /*"lea rsp, g_iretq_frame;"*/
+        "lea rsp, g_iretq_frame;"
         "iretq;"
         ".att_syntax;"
-        :
-        : "r"(g_iretq_user_ctx.ss), "r"(g_iretq_user_ctx.rsp), "r"(g_iretq_user_ctx.rflags), "r"(g_iretq_user_ctx.cs), "r"(g_iretq_user_ctx.rip)
-        : "memory", "r15"
     );
 
     __builtin_unreachable();
@@ -93,6 +66,6 @@ void dump_iretq_user_ctx(struct iretq_user_ctx *ctx) {
     puts("+--------------------------------------------+");
     printf("| RSP (user stack ptr) = 0x%016lx  |\n", ctx->rsp);
     puts("+--------------------------------------------+");
-    printf("| SS  (stack segment)  = 0x%04lx               |\n", ctx->ss);
+    printf("| SS  (stack segment)  = 0x%04lx              |\n", ctx->ss);
     puts("+--------------------------------------------+\n");
 }

@@ -11,7 +11,7 @@ LIBNAME   = $(LIBDIR)/libxpl.a
 ROOT_SRCS := $(wildcard *.c)
 SRC_SRCS  := $(wildcard src/*.c)
 ROOT_OBJS := $(patsubst %.c,      $(OBJDIR)/%.o, $(notdir $(ROOT_SRCS)))
-MOD_OBJS  := $(patsubst src/%.c,  $(OBJDIR)/%.o, $(notdir $(SRC_SRCS)))
+MOD_OBJS  := $(patsubst src/%.c,  $(OBJDIR)/%.o, $(SRC_SRCS))
 
 all: $(OBJDIR) $(LIBDIR) $(LIBNAME) $(TARGET)
 

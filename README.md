@@ -23,7 +23,7 @@ project-root/
 ├── obj/                // Auto-generated object files
 │   └── *.o             // Keeps artifacts isolated      
 │
-├── lib/                // Auto-generated object files
+├── lib/                // Auto-generated library files
 │   └── libxpl.a        // Made from src/*.c to store .a file for only the needed symbols into final binary
 │
 ├── scripts/                    // Helper automation and debugging scripts
@@ -50,7 +50,7 @@ project-root/
 - **`include/`**: Contains headers for reusable components. Each `.h` defines the API for its corresponding `.c` module under `src/`.
 - **`src/*.c`**: Modular C implementations for each major exploit component. These files are cleanly separated and easy to reuse across different kernel exploit chains.
 - **`obj/*.o`**: Compiled object files for each .c source file to ensure a clean, flat object output directory and simplifies linking.
-- **`lib/libxpl.a`**: A static archive containing all compiled object modules from src/*.c. This archive allows linking only necessary components into the final binary. This supports modular reuse—xpl.c can selectively link only the modules it needs from libxpl.a, avoiding recompilation or unnecessary code inclusion..
+- **`lib/libxpl.a`**: A static archive containing all compiled object modules from `src/*.c`. This archive allows linking only necessary components into the final binary. This supports modular reuse—`xpl.c` can selectively link only the modules it needs from libxpl.a, avoiding recompilation or unnecessary code inclusion.
 - **`build/`**: Auto-generated directory for `.o` files (one per `.c` file). Keeps root clean and build artifacts separated.
 - **`Makefile`**: Flexible build system supporting different modes:
   - `make` – Default build for local testing (optimized, no debug info)
