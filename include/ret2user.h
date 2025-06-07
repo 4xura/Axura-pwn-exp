@@ -13,11 +13,14 @@ struct iretq_user_ctx {
     uintptr_t rip;
 };
 
+extern struct iretq_user_ctx g_iretq_user_ctx;
+
 // Save userland state for iretq transition
 struct iretq_user_ctx save_iretq_user_ctx(void (*rip_func)(void));
 
 // Perform iretq back to userland 
-void ret2user_trampoline(struct iretq_user_ctx *ctx) __attribute__((noreturn));
+void _ret2user_trampoline(struct iretq_user_ctx *ctx) __attribute__((noreturn));
+void ret2user_trampoline(void) __attribute__((noreturn));
 
 // Dump it like a virtual stack layout 
 void dump_iretq_user_ctx(struct iretq_user_ctx *ctx);

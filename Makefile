@@ -1,29 +1,40 @@
-CC       = gcc
-CFLAGS	?= -Wall -Wextra O0 -Iinclude
+CC      = gcc
+AR      = ar
+CFLAGS ?= -Wall -Wextra -O0 -Iinclude
 LDFLAGS ?=
 
-TARGET ?= xpl
-BUILD   = build
+TARGET   ?= xpl
+OBJDIR    = obj
+LIBDIR    = lib
+LIBNAME   = $(LIBDIR)/libxpl.a
 
 ROOT_SRCS := $(wildcard *.c)
 SRC_SRCS  := $(wildcard src/*.c)
-SRCS      := $(ROOT_SRCS) $(SRC_SRCS)
+ROOT_OBJS := $(patsubst %.c,      $(OBJDIR)/%.o, $(notdir $(ROOT_SRCS)))
+MOD_OBJS  := $(patsubst src/%.c,  $(OBJDIR)/%.o, $(notdir $(SRC_SRCS)))
 
-OBJS := $(patsubst %.c,      $(BUILD)/%.o, $(notdir $(ROOT_SRCS))) \
-        $(patsubst src/%.c,  $(BUILD)/%.o, $(notdir $(SRC_SRCS)))
+all: $(OBJDIR) $(LIBDIR) $(LIBNAME) $(TARGET)
 
-all: $(BUILD) $(TARGET)
+$(OBJDIR):
+	mkdir -p $(OBJDIR)
 
-$(BUILD):
-	mkdir -p $(BUILD)
+$(LIBDIR):
+	mkdir -p $(LIBDIR)
 
-$(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^
+# Static library from src/*.c modules
+$(LIBNAME): $(MOD_OBJS)
+	$(AR) rcs $@ $^
 
-$(BUILD)/%.o: %.c
+# Link root .o and libxpl.a into the final binary
+$(TARGET): $(ROOT_OBJS) $(LIBNAME)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(ROOT_OBJS) $(LIBNAME)
+
+# Compile .c from root/
+$(OBJDIR)/%.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(BUILD)/%.o: src/%.c
+# Compile .c from src/
+$(OBJDIR)/%.o: src/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 debug:
@@ -33,21 +44,22 @@ static:
 	$(MAKE) CFLAGS="$(CFLAGS)" LDFLAGS="-static"
 
 release:
-	$(MAKE) CFLAGS="-Wall -Wextra -Iinclude" LDFLAGS="-static"
+	$(MAKE) CFLAGS="-Wall -Wextra -O2 -Iinclude" LDFLAGS="-static"
 
 strip:
 	strip $(TARGET)
 
 clean:
-	rm -rf $(BUILD) $(TARGET)
+	rm -rf $(OBJDIR) $(LIBDIR) $(TARGET)
 
 help:
 	@echo "Available targets:"
-	@echo "  make            - Build the default exploit binary"
-	@echo "  make static     - Build statically-linked exploit"
-	@echo "  make debug      - Build with debug symbols and no optimization"
-	@echo "  make release    - Optimized, static binary (no debug info)"
-	@echo "  make strip      - Strip symbol table from final binary"
+	@echo "  make            - Build the main binary using only needed modules"
+	@echo "  make static     - Statically link final binary"
+	@echo "  make debug      - With debug symbols, no optimization"
+	@echo "  make release    - Optimized static binary"
+	@echo "  make strip      - Strip symbol table"
 	@echo "  make clean      - Remove build artifacts"
 
 .PHONY: all clean debug static release strip help
+
