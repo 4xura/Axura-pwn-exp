@@ -45,8 +45,8 @@ __attribute__((noreturn))
 void ret2user_iretq(void)
 {
     __asm__ __volatile__ (
+        ".intel_syntax noprefix;"
         "swapgs;"
-        /*"lea rsp, g_iretq_frame;"*/
         "lea rsp, g_iretq_frame;"
         "iretq;"
         ".att_syntax;"

