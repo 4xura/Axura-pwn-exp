@@ -54,7 +54,8 @@ _glb_ret2user_iretq(void)
 
 /* Passing inline iretq ctx as arguments as a flex */
 void __attribute__((noreturn))
-__ret2user_iretq(iretq_user_ctx ctx) {
+__ret2user_iretq(iretq_user_ctx ctx)
+{
     __asm__ __volatile__ (
         ".intel_syntax noprefix;"
         "swapgs;"
@@ -91,7 +92,8 @@ prepare_iretq_frame(uintptr_t frame[5], iretq_user_ctx ctx)
 
 
 /* Dump iretq user context as a virtual stack layout */
-void dump_iretq_user_ctx(struct iretq_user_ctx *ctx) {
+void dump_iretq_user_ctx(struct iretq_user_ctx *ctx)
+{
     puts("\n+--------------------------------------------+");
     printf("| RIP (return address)  = 0x%016lx |\n", ctx->rip);
     puts("+--------------------------------------------+");
