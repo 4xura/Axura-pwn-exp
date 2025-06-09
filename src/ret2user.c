@@ -30,16 +30,6 @@ struct iretq_user_ctx save_iretq_user_ctx(void (*rip_func)(void))
     return ctx;
 }
 
-/* Prepare a stackframe before returning from iretq */
-void
-prepare_iretq_frame(uintptr_t frame[5], iretq_user_ctx ctx)
-{
-    frame[0] = ctx.rip;
-    frame[1] = ctx.cs;
-    frame[2] = ctx.rflags;
-    frame[3] = ctx.rsp;
-    frame[4] = ctx.ss;
-}
 
 /* Call iretq to return to user spacea 
  *      Either we pass a global fake stack frame (suggest)
@@ -47,15 +37,14 @@ prepare_iretq_frame(uintptr_t frame[5], iretq_user_ctx ctx)
  *          - which may raise clobbers in asm
  * */
 
-/* Passing a global fake stack frame for iretq call */
-__attribute__((noreturn))
-void ret2user_iretq(void)
+/* Use a global fake stack frame for iretq call */
+void __attribute__((noreturn))
+_glb_ret2user_iretq(void)
 {
     __asm__ __volatile__ (
         ".intel_syntax noprefix;"
         "swapgs;"
-        /*"lea rsp, g_iretq_frame;"*/
-        "lea rsp, g_iretq_frame;"
+        "lea rsp, IRETQ_FRAME;"
         "iretq;"
         ".att_syntax;"
     );
@@ -63,9 +52,9 @@ void ret2user_iretq(void)
     __builtin_unreachable();
 }
 
-/* Passing iretq ctx members as arguments */
-__attribute__((noreturn))
-void _ret2user_iretq(iretq_user_ctx ctx) {
+/* Passing inline iretq ctx as arguments as a flex */
+void __attribute__((noreturn))
+__ret2user_iretq(iretq_user_ctx ctx) {
     __asm__ __volatile__ (
         ".intel_syntax noprefix;"
         "swapgs;"
@@ -87,6 +76,19 @@ void _ret2user_iretq(iretq_user_ctx ctx) {
 
     __builtin_unreachable();
 }
+
+
+/* Prepare a stackframe before returning from iretq */
+void
+prepare_iretq_frame(uintptr_t frame[5], iretq_user_ctx ctx)
+{
+    frame[0] = ctx.rip;
+    frame[1] = ctx.cs;
+    frame[2] = ctx.rflags;
+    frame[3] = ctx.rsp;
+    frame[4] = ctx.ss;
+}
+
 
 /* Dump iretq user context as a virtual stack layout */
 void dump_iretq_user_ctx(struct iretq_user_ctx *ctx) {

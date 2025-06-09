@@ -7,7 +7,7 @@
  * Return to userland with
  *      iretq
  *
- * Namely, swapgs ... iretq
+ *      Namely: swapgs ... iretq
  *
  * Before executing the iretq instruction,
  *      we need to prepare a user state context
@@ -35,11 +35,11 @@ typedef struct iretq_user_ctx {
     uintptr_t rip;  // Top of stack frame
 } iretq_user_ctx;
 
-extern struct iretq_user_ctx g_iretq_user_ctx;
+extern struct iretq_user_ctx IRETQ_USER_CTX;
 
 /* Save userland state for iretq transition */
-struct iretq_user_ctx
-save_iretq_user_ctx(void (*rip_func)(void));
+struct iretq_user_ctx save_iretq_user_ctx(void (*rip_func)(void));
+
 
 /* Prepare a stack frame to store
  *      the required values beforre returning to user space
@@ -48,12 +48,13 @@ save_iretq_user_ctx(void (*rip_func)(void));
  * The values on this stack frame
  *      will be pushed onto the corresponding registers:
  *      RIP, CS, RFLAGS, RSP, SS
+ *      for iretq to use
  * */
-extern __attribute__((aligned(16))) uintptr_t g_iretq_frame[5];
+extern __attribute__((aligned(16))) uintptr_t IRETQ_FRAME[5];
 
 /* Populate iretq user context into fake stack frame */
-void
-prepare_iretq_frame(uintptr_t frame[5], iretq_user_ctx ctx);
+void prepare_iretq_frame(uintptr_t frame[5], iretq_user_ctx ctx);
+
 
 /* After privesc (getuid=0) as root,
  *      iretq to user space.
@@ -69,14 +70,20 @@ prepare_iretq_frame(uintptr_t frame[5], iretq_user_ctx ctx);
  *      and pass its address to rsp directly,
  *      to avoid register clobbers in the asm
  * */
-void
-ret2user_iretq(void) __attribute__((noreturn)); // global stackframe 
-void
-_ret2user_iretq(iretq_user_ctx ctx) __attribute__((noreturn));    // Use struct
 
-/* Dump iretq user context like a virtual stack layout */
-void
-dump_iretq_user_ctx(struct iretq_user_ctx *ctx);
+/* Pass an iretq user ctx struct as an variable for the inline asm payload */
+void __attribute__((noreturn)) __ret2user_iretq(iretq_user_ctx ctx);
+
+/* use a global stackframe */
+void __attribute__((noreturn)) _glb_ret2user_iretq(void); 
+
+/* Wrapper */
+void __attribute__((noreturn)) ret2user_iretq(void);
+
+
+/* Helper: Dump iretq user context like a virtual stack layout */
+void dump_iretq_user_ctx(struct iretq_user_ctx *ctx);
+
 
 #endif  // RET2USER_H
 
