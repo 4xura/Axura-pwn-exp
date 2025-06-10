@@ -14,7 +14,7 @@
 #   - Supports custom memory, CPU model, kernel arguments, and debug flags
 #
 # Options:
-#   --kernel PATH       Path to kernel image (default: ./vmlinuz)
+#   --kernel PATH       Path to kernel image (default: ./vmlinux)
 #   --initrd PATH       Path to initramfs (default: ./initramfs.cpio.gz)
 #   --mem SIZE          Memory size (default: 256M)
 #   --cpu STRING        QEMU CPU model (default: qemu64)
@@ -24,13 +24,13 @@
 #   -h, --help          Show this help message
 #
 # Example:
-#   ./run-serial.sh --kernel ./vmlinuz --initrd ./initramfs.cpio.gz --mem 512M --debug
+#   ./run-serial.sh --kernel ./vmlinux --initrd ./initramfs.cpio.gz --mem 512M --debug
 # ------------------------------------------------------------------------------
 
 set -euo pipefail
 
 # Default values
-KERNEL="./vmlinuz"
+KERNEL="./vmlinux"
 INITRD="./initramfs.cpio.gz"
 MEM="256M"
 CPU="kvm64,+smep,+smap"
@@ -100,3 +100,4 @@ $QEMU \
 	-serial mon:stdio \
 	-no-reboot \
 	$([ "$DEBUG" -eq 1 ] && echo "-d int,cpu_reset,guest_errors")
+
