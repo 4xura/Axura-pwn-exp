@@ -1,7 +1,6 @@
 #ifndef ROP_H
 #define ROP_H
 
-#include <cstdint>
 #include <stdint.h>
 #include <sys/types.h>
 #include "privesc.h"

