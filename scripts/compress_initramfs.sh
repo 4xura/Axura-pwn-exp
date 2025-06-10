@@ -24,7 +24,7 @@ if [ $# -lt 1 ] || [ $# -gt 2 ]; then
     exit 2
 fi
 
-SRC_DIR="${1:-initramfs}"
+SRC_DIR="$1"
 OUT_FILE="${2:-initramfs.cpio.gz}"
 
 if [ ! -d "$SRC_DIR" ]; then
