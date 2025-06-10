@@ -33,12 +33,13 @@ typedef struct iretq_user_ctx {
     uintptr_t rflags;
     uintptr_t cs;
     uintptr_t rip;  // Top of stack frame
-} iretq_user_ctx;
+} iretq_user_ctx_t;
 
-extern struct iretq_user_ctx IRETQ_USER_CTX;
+/* Global user context for iretq */
+extern iretq_user_ctx_t IRETQ_USER_CTX;
 
 /* Save userland state for iretq transition */
-struct iretq_user_ctx save_iretq_user_ctx(void (*rip_func)(void));
+iretq_user_ctx_t save_iretq_user_ctx(void (*rip_func)(void));
 
 
 /* Prepare a stack frame to store
@@ -53,7 +54,7 @@ struct iretq_user_ctx save_iretq_user_ctx(void (*rip_func)(void));
 extern __attribute__((aligned(16))) uintptr_t IRETQ_FRAME[5];
 
 /* Populate iretq user context into fake stack frame */
-void prepare_iretq_frame(uintptr_t frame[5], iretq_user_ctx ctx);
+void stash_iretq_frame(uintptr_t frame[5], iretq_user_ctx_t ctx);
 
 
 /* After privesc (getuid=0) as root,
@@ -72,7 +73,7 @@ void prepare_iretq_frame(uintptr_t frame[5], iretq_user_ctx ctx);
  * */
 
 /* Pass an iretq user ctx struct as an variable for the inline asm payload */
-void __attribute__((noreturn)) __ret2user_iretq(iretq_user_ctx ctx);
+void __attribute__((noreturn)) __ret2user_iretq(iretq_user_ctx_t ctx);
 
 /* use a global stackframe */
 void __attribute__((noreturn)) _glb_ret2user_iretq(void); 
@@ -82,7 +83,7 @@ void __attribute__((noreturn)) ret2user_iretq(void);
 
 
 /* Helper: Dump iretq user context like a virtual stack layout */
-void dump_iretq_user_ctx(struct iretq_user_ctx *ctx);
+void dump_iretq_user_ctx(iretq_user_ctx_t *ctx);
 
 
 #endif  // RET2USER_H

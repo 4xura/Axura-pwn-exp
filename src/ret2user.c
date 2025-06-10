@@ -5,9 +5,9 @@
 #include "utils.h"
 
 /* Save required registers & flags for iretq transition */
-struct iretq_user_ctx save_iretq_user_ctx(void (*rip_func)(void))
+iretq_user_ctx_t save_iretq_user_ctx(void (*rip_func)(void))
 {
-    struct iretq_user_ctx ctx;
+    iretq_user_ctx_t ctx;
 
     __asm__ volatile(
         ".intel_syntax noprefix;"
@@ -54,8 +54,7 @@ _glb_ret2user_iretq(void)
 
 /* Passing inline iretq ctx as arguments as a flex */
 void __attribute__((noreturn))
-__ret2user_iretq(iretq_user_ctx ctx)
-{
+__ret2user_iretq(iretq_user_ctx_t ctx) {
     __asm__ __volatile__ (
         ".intel_syntax noprefix;"
         "swapgs;"
@@ -81,7 +80,7 @@ __ret2user_iretq(iretq_user_ctx ctx)
 
 /* Prepare a stackframe before returning from iretq */
 void
-prepare_iretq_frame(uintptr_t frame[5], iretq_user_ctx ctx)
+stash_iretq_frame(uintptr_t frame[5], iretq_user_ctx_t ctx)
 {
     frame[0] = ctx.rip;
     frame[1] = ctx.cs;
@@ -92,8 +91,7 @@ prepare_iretq_frame(uintptr_t frame[5], iretq_user_ctx ctx)
 
 
 /* Dump iretq user context as a virtual stack layout */
-void dump_iretq_user_ctx(struct iretq_user_ctx *ctx)
-{
+void dump_iretq_user_ctx(iretq_user_ctx_t *ctx) {
     puts("\n+--------------------------------------------+");
     printf("| RIP (return address)  = 0x%016lx |\n", ctx->rip);
     puts("+--------------------------------------------+");
