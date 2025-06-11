@@ -4,6 +4,9 @@
 #include "ret2user.h"
 #include "utils.h"
 
+iretq_user_ctx_t IRETQ_USER_CTX;
+__attribute__((aligned(16))) uintptr_t IRETQ_FRAME[5];
+
 /* Save required registers & flags for iretq transition */
 iretq_user_ctx_t save_iretq_user_ctx(void (*rip_func)(void))
 {

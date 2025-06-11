@@ -39,7 +39,11 @@ void get_shell(const char *mode);
 #define SUCCESS(fmt, ...)   fprintf(stdout, "\033[32m[+] " fmt "\033[0m\n", ##__VA_ARGS__)
 #define FAILURE(fmt, ...)   fprintf(stderr, "\033[31m[-] " fmt "\033[0m\n", ##__VA_ARGS__)
 #define PA(sym)             fprintf(stdout, "\033[34m[Addr] %s: %p\033[0m\n", #sym, (void *)(sym))
-#define DIE(msg)            do { perror(msg); exit(EXIT_FAILURE); } while (0)
+#define DIE(...) do { \
+    fprintf(stderr, "\033[31m[!!] " __VA_ARGS__); \
+    fprintf(stderr, "\033[0m\n"); \
+    exit(EXIT_FAILURE); \
+} while (0)
 
 /* Assertions & Checks */
 #define ASSERT(x) do { if (!(x)) { FAILURE("[x] Assert failed: %s", #x); exit(1); } } while (0)

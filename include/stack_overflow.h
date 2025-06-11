@@ -3,6 +3,7 @@
 
 #include <stdint.h>   // for uintptr_t
 #include <stddef.h>   // for size_t
+#include "rop.h"
 
 /* Leak stack cookie from vulnerable device */
 uintptr_t
@@ -14,6 +15,6 @@ stack_overflow(int fd,
                 uintptr_t cookie,
                 size_t cookie_offset,
                 size_t pl_len,
-                uintptr_t rop[]);
+                rop_chain_t rop);
 
 #endif  // STACK_OVERFLOW_H
