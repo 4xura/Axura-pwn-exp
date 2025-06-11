@@ -14,6 +14,6 @@ stack_overflow(int fd,
                 uintptr_t cookie,
                 size_t cookie_offset,
                 size_t pl_len,
-                uintptr_t ret_addr);
+                uintptr_t rop[]);
 
 #endif  // STACK_OVERFLOW_H
