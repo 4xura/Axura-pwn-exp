@@ -8,6 +8,8 @@
 #include <fcntl.h>
 #include <errno.h>
 #include "include/utils.h"
+#include "include/rop.h"
+#include "include/ret2user.h"
 
 /* Configuration */
 #define DEVICE_PATH     "/dev/vulndev"

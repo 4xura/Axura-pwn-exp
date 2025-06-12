@@ -1,5 +1,6 @@
 #include "stack_pivot.h"
 #include "utils.h"
+#include <sys/mman.h>
 
 void stash_fake_stack(void *fake_stack_addr,
                     size_t fake_stack_size,

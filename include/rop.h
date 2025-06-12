@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <sys/types.h>
+#include "ret2user.h"
 
 /* Typedef a struct for rop chain rop[]
  *      to avoid bug when copying 0 from the chain to buffer
@@ -64,41 +65,34 @@ size_t chain_cr4_smep(rop_buffer_t rop,
 } while (0)
 
 /*
- * append_chain - Concatenate an ROP chain fragment into a larger chain.
+ * concat_rop_list - concatenate multiple ROPs (rop_buffer_t) into one buffer
  *
- * Copy |src_len| elements from the |src| array into the |dst| array starting at index |*off|.
- *      After copying, it advances the offset |*off| by |src_len| 
- *      and returns the updated offset.
+ * @dst:       target ROP buffer to write into
+ * @dst_off:   pointer to the current offset (will be updated)
+ * @list:      array of ROP buffers to concatenate
+ * @count:     number of ROP buffers in the list
  *
- * For ROP chains, each entry is a qword (8 bytes on 64-bit systems).
+ * Appends all gadgets from the given list of ROP buffers into the destination buffer.
+ * Uses PUSH_ROP to ensure bounds checking.
  *
- * Parameters:
- *   dst     - Pointer to the destination chain
- *   off     - Pointer to the current write offset in the destination chain.
- *   src     - Pointer to the source chain of uintptr_t values to copy.
- *   src_len - Number of uintptr_t elements to copy from src to dst (len for src chain).
- *
- * Returns:
- *   The new offset value after appending the elements.
+ * Returns the new offset in the destination buffer.
+ */
+size_t concat_rop_list(rop_buffer_t dst,
+                        size_t *dst_off,
+                        const rop_buffer_t *list,
+                        size_t count);
+
+/* 
+ * COUNT_ROP - compute the number of ROP entries
+ *      (Should only be used on real arrays, not pointers)
  *
  * Example:
- *     uintptr_t chain[64];       // Final combined chain
- *     uintptr_t rop1[16];        // First subchain
- *     uintptr_t rop2[16];        // Second subchain
- *     size_t offset = 0;
- *
- *     size_t len1 = chain_rop1(rop1);  // fills rop1[], returns number of qwords
- *     offset = append_chain(chain, &offset, rop1, len1);
- *
- *     size_t len2 = chain_rop2(rop2);  // fills rop2[], returns number of qwords
- *     offset = append_chain(chain, &offset, rop2, len2);
- *
- *     // `chain` now contains: [rop1..., rop2...]
+ *     uintptr_t chain[] = { gadget1, gadget2 };
+ *     size_t count = COUNT_ROP(chain);  // yields 2
  */
-size_t append_chain(uintptr_t *dst,
-                    size_t *off,
-                    const uintptr_t *src,
-                    size_t src_len);
+#define COUNT_ROP(rop_chain_arr)                    \
+    (sizeof(rop_chain_arr) / sizeof(uintptr_t))
+
 
 
 #endif

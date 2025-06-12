@@ -12,7 +12,8 @@
  * Mmap with a specified guard page size to
  *      ensure safe stack pivoting in kernel-space exploits. 
  *      The first page is touched to avoid a double fault on lazy page allocation 
- *      (e.g., if CPU or kernel touches an unmapped page before the ROP chain is executed).
+ *      (that CPU or kernel touches an unmapped page before the ROP chain is executed
+ *      e.g., functions like prepare_kernel_cred() and commit_creds() make calls to other functions inside them, causing the stack to grow).
  *      Write something (COW) to make sure that page is created and accessible
  *
  * Parameters:

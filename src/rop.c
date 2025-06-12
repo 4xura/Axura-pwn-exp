@@ -73,17 +73,49 @@ size_t chain_cr4_smep(rop_buffer_t rop,
 
 /* ============= ROP Helpers ==============*/
 
-/* Copy |src_len| qwords from |src| into |dst| starting at |*off|,
- * then advance *off and return the new offset.                 */
-size_t append_chain(uintptr_t *dst,
-                    size_t *off,
-                    const uintptr_t *src,
-                    size_t src_len)
+/*
+ * concat_rop_list 
+ *
+ * @dst:       target ROP buffer to write into
+ * @dst_off:   pointer to the current offset (will be updated)
+ * @list:      array of ROP buffers to concatenate
+ * @count:     number of ROP buffers in the list
+ */
+/*size_t concat_rop_list(rop_buffer_t dst,*/
+                        /*size_t *dst_off,*/
+                        /*const rop_buffer_t *list,*/
+                        /*size_t count)*/
+/*{*/
+    /*for (size_t i = 0; i < count; ++i) {*/
+        /*for (size_t j = 0; j < list[i].count; ++j) {*/
+            /*PUSH_ROP(dst, *dst_off, list[i].chain[j]);*/
+        /*}*/
+    /*}*/
+    /*return *dst_off;*/
+/*}*/
+
+size_t concat_rop_list(rop_buffer_t dst,
+                       size_t *dst_off,
+                       const rop_buffer_t *list,
+                       size_t count)
 {
-    for (size_t j = 0; j < src_len; ++j)
-        dst[*off + j] = src[j]; // qword-by-qword copy
-    *off += src_len;
-    return *off;
+    // Step 1: calculate total length to write
+    size_t total_needed = 0;
+    for (size_t i = 0; i < count; ++i)
+        total_needed += list[i].count;
+
+    // Step 2: check capacity
+    if (*dst_off + total_needed > dst.count)
+        DIE("ROP concat would overflow: need %zu, have %zu", *dst_off + total_needed, dst.count);
+
+    // Step 3: safe copy
+    for (size_t i = 0; i < count; ++i) {
+        for (size_t j = 0; j < list[i].count; ++j) {
+            PUSH_ROP(dst, *dst_off, list[i].chain[j]);
+        }
+    }
+
+    return *dst_off;
 }
 
 

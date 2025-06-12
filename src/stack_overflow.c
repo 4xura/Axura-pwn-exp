@@ -36,7 +36,7 @@ uintptr_t leak_cookie(int fd, size_t leak_slots, size_t cookie_offset)
 void stack_overflow(int fd, 
                     uintptr_t cookie, size_t cookie_offset, 
                     size_t pl_sz, 
-                    rop_chain_t rop)
+                    rop_buffer_t rop)
 {
     size_t pl_slots = pl_sz / sizeof(uintptr_t);
 
