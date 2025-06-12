@@ -6,7 +6,7 @@
 /* ============= Stash Fake Stack ============= 
  * When we use gadgets like `mov rsp, ...` or `mov esp, ...`
  *      to pivot stack in kernel space
- *      Map a memory region to on where RSP points
+ *      Mmap a memory region to on where RSP points
  *      Serve it as a fake stack and place ROP chain on it.
  *
  * Mmap with a specified guard page size to
@@ -17,13 +17,13 @@
  *      Write something (COW) to make sure that page is created and accessible
  *
  * Parameters:
- *   fake_stack_addr - address where the ROP chain should begin
- *   fake_stack_size - size of usable fake stack (must be page-aligned)
+ *   pivot_stack_addr - address where the ROP chain should begin
+ *   pivot_stack_size - size of usable fake stack (must be page-aligned)
  *   guard_size      - size of preceding memory to be touched/mapped as a guard, usually 0x1000
- *   rop             - pointer to the ROP chain structure to be placed at fake_stack_addr
+ *   rop             - pointer to the ROP chain structure to be placed at pivot_stack_addr
  */
-void stash_fake_stack(void *fake_stack_addr,
-                    size_t fake_stack_size,
+void stash_mmap_stack(void *pivot_stack_addr,
+                    size_t pivot_stack_size,
                     size_t guard_size,
                     rop_buffer_t *rop); 
 

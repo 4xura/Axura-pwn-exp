@@ -6,10 +6,11 @@
 
 extern uintptr_t POST_PRIVESC_JUMP_ADDR;
 
-/* ============= 1 =============
+/* ============= Kcreds =============
+
  * Privesc from kernel creds:
  *      commit_creds(prepare_kernel_cred(0));
- * */
+ */
 
  /* First leak the address of these 2 kernel APIs */
 extern uintptr_t COMMIT_CREDS_ADDR;
@@ -20,7 +21,7 @@ extern uintptr_t PREPARE_KERNEL_CRED_ADDR;
  *
  * After this, we will need to provide a next jump
  *      to take control of the following move, as root
- * */ 
+ */ 
 
 /* Use global variables to avoid clobbers if needed */
 void _glb_privesc_kcred(void);

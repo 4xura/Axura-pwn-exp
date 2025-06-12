@@ -34,11 +34,12 @@ iretq_user_ctx_t save_iretq_user_ctx(void (*rip_func)(void))
 }
 
 
-/* Call iretq to return to user spacea 
+/*
+ * Call iretq to return to user spacea 
  *      Either we pass a global fake stack frame (suggest)
  *      or pass the iretq ctx structure for the required regs
  *          - which may raise clobbers in asm
- * */
+ */
 
 /* Use a global fake stack frame for iretq call */
 void __attribute__((noreturn))
@@ -79,7 +80,6 @@ __ret2user_iretq(iretq_user_ctx_t ctx) {
 
     __builtin_unreachable();
 }
-
 
 /* Prepare a stackframe before returning from iretq */
 void

@@ -10,7 +10,7 @@
  *
  * We can use global variables in the assembly,
  *      to avoid program crash due to register clobbers
- * */
+ */
 void _glb_privesc_kcred(void)
 {
     __asm__ __volatile__ (
@@ -30,9 +30,10 @@ void _glb_privesc_kcred(void)
     );
 }
 
-/* Otherwise, use the most less-used registers
+/* 
+ * Otherwise, use the most less-used registers
  *      to pass variables to avoid clobber issues
- * */
+ */
 void __privesc_kcred(uintptr_t commit_creds_addr,
                         uintptr_t prepare_kernel_cred_addr,
                         uintptr_t post_privesc_jmp_addr)

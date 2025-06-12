@@ -1,29 +1,25 @@
 #!/usr/bin/env bash
 # ------------------------------------------------------------------------------
-# run_smep.sh - Launch QEMU for kernel exploits when SMEP is enabled
+# run_kpti.sh - Launch QEMU for ret2user-style kernel exploits
 #
 # Author: Axura
 # Website: https://4xura.com
 #
 # Description:
-#   - Enables SMEP (Supervisor Mode Execution Protection), a CPU feature that 
-#     prevents the kernel from executing code from user-space memory. This is 
-#     controlled by the 20th bit of CR4, and can be toggled via QEMU using 
-#     `+smep` or boot parameters like `nosmep`.
-#   - This script configures a QEMU environment with SMEP enabled, while disabling 
-#     other mitigations like SMAP, KPTI, and KASLR.
-#   - Useful for testing SMEP bypasses (e.g., ROP to kernel gadgets).
+#   - Enables KPTI, SMEP
+#   - Disables SMAP, and KASLR
+#   - Ideal for ret2usr payloads that execute shellcode in user space
 #
 # Usage:
-#   ./run_smep.sh [options]
+#   ./run_kpti.sh [options]
 #
 # Options:
 #   --kernel PATH       Kernel image (default: ./vmlinuz)
 #   --initrd PATH       Initramfs (default: ./initramfs.cpio.gz)
 #   --mem SIZE          Memory size (default: 256M)
-#   --cpu STRING        QEMU CPU model (default: qemu64,smep=on,smap=off)
+#   --cpu STRING        QEMU CPU model (default: qemu64,smep=off,smap=off)
 #   --hdb FILE          Attach file as second hard disk (default: flag.txt)
-#   --append ARGS       Kernel cmdline (default: disable all mitigations except SMEP)
+#   --append ARGS       Kernel cmdline (enable kpti, but disabling KASLR and SMAP)
 #   -h, --help          Show this help message
 # ------------------------------------------------------------------------------
 
@@ -33,9 +29,9 @@ set -euo pipefail
 KERNEL="./vmlinuz"
 INITRD="./initramfs.cpio.gz"
 MEM="256M"
-CPU="kvm64,smep=on,smap=off"
+CPU="kvm64,smep=off,smap=off"
 HDB="flag.txt"
-APPEND="console=ttyS0 root=/dev/ram rw nopti nokaslr quiet panic=1"
+APPEND="console=ttyS0 root=/dev/ram rw kpti=1 nokaslr quiet panic=1"
 QEMU="qemu-system-x86_64"
 
 usage() {
@@ -70,7 +66,7 @@ done
 [[ -f "$INITRD" ]] || { echo "[!] Initramfs not found: $INITRD"; exit 1; }
 [[ -f "$HDB" ]]    || { echo "[!] hdb file not found: $HDB"; exit 1; }
 
-echo "[*] Launching QEMU to test SMEP..."
+echo "[*] Launching QEMU for test KPTI..."
 echo "[*] Kernel : $KERNEL"
 echo "[*] Initrd : $INITRD"
 echo "[*] Memory : $MEM"

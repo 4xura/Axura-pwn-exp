@@ -24,6 +24,11 @@
  *  +-------------------------+
  *  | SS  (stack segment)     |
  *  +-------------------------+
+ *
+ * PATCH: 
+ *      A direct ret2user can’t be used since Linux 4.15
+ *      All userspace memory in kernel will be mapped as non-executable (KPTI)
+ *      We will need to bypass KPTI then continue this attack
  * */
 
 /* Userland context for iretq */

