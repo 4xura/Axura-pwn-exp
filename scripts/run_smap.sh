@@ -1,24 +1,24 @@
 #!/usr/bin/env bash
 # ------------------------------------------------------------------------------
-# run_kpti.sh - Launch QEMU for ret2user-style kernel exploits
+# run_smap.sh - Launch QEMU for ret2user-style kernel exploits
 #
 # Author: Axura
 # Website: https://4xura.com
 #
 # Description:
-#   - Enables KPTI, SMEP
-#   - Disables SMAP, and KASLR
+#   - Enables KPTI, SMEP, SMAP
+#   - Disables KASLR
 #
 # Usage:
-#   ./run_kpti.sh [options]
+#   ./run_smap.sh [options]
 #
 # Options:
 #   --kernel PATH       Kernel image (default: ./vmlinuz)
 #   --initrd PATH       Initramfs (default: ./initramfs.cpio.gz)
 #   --mem SIZE          Memory size (default: 256M)
-#   --cpu STRING        QEMU CPU model (default: qemu64,smep=on,smap=off)
+#   --cpu STRING        QEMU CPU model (default: qemu64,smep=on,smap=on)
 #   --hdb FILE          Attach file as second hard disk (default: flag.txt)
-#   --append ARGS       Kernel cmdline (enable kpti, but disabling KASLR and SMAP)
+#   --append ARGS       Kernel cmdline (enable SMEP/SMAP and kpti, but disabling KASLR)
 #   -h, --help          Show this help message
 # ------------------------------------------------------------------------------
 
@@ -28,7 +28,7 @@ set -euo pipefail
 KERNEL="./vmlinuz"
 INITRD="./initramfs.cpio.gz"
 MEM="256M"
-CPU="kvm64,smep=on,smap=off"
+CPU="kvm64,smep=on,smap=on"
 HDB="flag.txt"
 APPEND="console=ttyS0 root=/dev/ram rw kpti=1 nokaslr quiet panic=1"
 QEMU="qemu-system-x86_64"
