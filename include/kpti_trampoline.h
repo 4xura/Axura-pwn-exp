@@ -14,9 +14,9 @@
  *          It calls 'SWITCH_TO_USER_CR3' to switch to the user-space page tables
  *
  * Defined at: https://elixir.bootlin.com/linux/v6.10.14/source/arch/x86/entry/entry_64.S#L560
-
+ *
  * We don't care how it restores the regs in exploit, 
-        but how it handles page isolation!
+ *      but how it handles page isolation!
  *      
  * So, the [KPTI trampoline] will be at:
  *      swapgs_restore_regs_and_return_to_usermode + 22 (0x16)
@@ -52,7 +52,7 @@
  * .text:FFFFFFFF81200FC0                   test    byte ptr [rsp+arg_18], 4
  * .text:FFFFFFFF81200FC5                   jnz     short loc_FFFFFFFF81200FC9
  * .text:FFFFFFFF81200FC7                   iretq
-
+ *
  * That CR3 reload logic is part of an alternative trampoline path (PTI-aware) 
  *      within this swapgs_restore_regos_and_return_to_usermode asm:
  *
@@ -70,7 +70,7 @@
  *              which handles page table isolation before executing swapgs and iretq.
  *
  * Before the KPTI trampoline, the CR3 is set at the start of the asm:
-
+ *
  * SYM_CODE_START_LOCAL(common_interrupt_return)
  * SYM_INNER_LABEL(swapgs_restore_regs_and_return_to_usermode, SYM_L_GLOBAL)
  * ...
