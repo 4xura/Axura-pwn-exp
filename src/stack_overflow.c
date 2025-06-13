@@ -22,7 +22,7 @@ uintptr_t leak_cookie(int fd, size_t leak_slots, size_t cookie_offset)
     if (nread < 0)
         DIE("read");
 
-    hexdump("[DEBUG] Leaks", leaks, leak_slots * sizeof(uintptr_t));
+    hexdump("Stack Leaks", leaks, leak_slots * sizeof(uintptr_t));
 
     uintptr_t cookie = leaks[cookie_slot];
     SUCCESS("Read %zd (0x%zx) bytes from device; cookie = 0x%lx @ offset 0x%zx (slot #%zu)",
