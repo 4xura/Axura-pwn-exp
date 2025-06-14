@@ -3,9 +3,7 @@
 #include <sys/types.h>
 #include "ret2user.h"
 #include "utils.h"
-
-iretq_user_ctx_t IRETQ_USER_CTX;
-__attribute__((aligned(16))) uintptr_t IRETQ_FRAME[5];
+#include "globals.h"
 
 /* Save required registers & flags for iretq transition */
 iretq_user_ctx_t save_iretq_user_ctx(void (*rip_func)(void))
@@ -95,10 +93,11 @@ stash_iretq_frame(uintptr_t frame[5], iretq_user_ctx_t ctx)
 
 /* Dump iretq user context as a virtual stack layout */
 void dump_iretq_user_ctx(iretq_user_ctx_t *ctx) {
-    puts("\n+--------------------------------------------+");
-    printf("| RIP (return address)  = 0x%016lx |\n", ctx->rip);
+    puts("\n[DUMP] User context for iretq:");
     puts("+--------------------------------------------+");
-    printf("| CS  (code segment)    = 0x%04lx             |\n", ctx->cs);
+    printf("| RIP (return address) = 0x%016lx  |\n", ctx->rip);
+    puts("+--------------------------------------------+");
+    printf("| CS  (code segment)   = 0x%04lx              |\n", ctx->cs);
     puts("+--------------------------------------------+");
     printf("| RFLAGS               = 0x%016lx  |\n", ctx->rflags);
     puts("+--------------------------------------------+");

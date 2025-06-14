@@ -95,6 +95,17 @@ size_t chain_swapgs_iretq(rop_buffer_t rop,
 }
 
 
+/* ============= Arbitrary Read  =============
+ * Read arbitrary memory stored in a ptr
+ *      pop rax; ret;
+ *      target_ptr;
+ *      mov rax, [rax]; ret;
+ *      kpti_trampoline;
+ *      ...
+ *      user_rip = asm that moves rax to a variable, then we can leak it.
+ */
+
+
 /* ============= CR4 =============
  * (depreciated since Linux 5.1)
  */

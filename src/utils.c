@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -26,8 +27,7 @@ void hexdump(const char *label, const void *addr, size_t len)
     const uint64_t *qwords = (const uint64_t *)addr;
     size_t qword_len = len / 8;
 
-    uintptr_t base = (uintptr_t)addr;
-
+    puts("\n------------------------hexdump------------------------");
     printf("[DEBUG] %s (%zu bytes @ %p):\n\n", label, len, addr);
 
     // BYTE VIEW
@@ -62,6 +62,8 @@ void hexdump(const char *label, const void *addr, size_t len)
             printf("%02x ", bytes[tail_offset + i]);
         putchar('\n');
     }
+
+    puts("------------------------hexdump------------------------\n");
 }
 
 /* Spawn root shell if uid == 0 */
@@ -96,4 +98,5 @@ void get_shell(const char *mode)
 
     _exit(1); // failsafe
 }
+
 

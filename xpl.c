@@ -7,6 +7,7 @@
 #include <stddef.h>
 #include <fcntl.h>
 #include <errno.h>
+#include "include/globals.h"
 #include "include/utils.h"
 #include "include/rop.h"
 

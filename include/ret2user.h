@@ -40,23 +40,8 @@ typedef struct iretq_user_ctx {
     uintptr_t rip;  // Top of stack frame
 } iretq_user_ctx_t;
 
-/* Global user context for iretq */
-extern iretq_user_ctx_t IRETQ_USER_CTX;
-
 /* Save userland state for iretq transition */
 iretq_user_ctx_t save_iretq_user_ctx(void (*rip_func)(void));
-
-
-/* Prepare a stack frame to store
- *      the required values beforre returning to user space
- *      in order
- *
- * The values on this stack frame
- *      will be pushed onto the corresponding registers:
- *      RIP, CS, RFLAGS, RSP, SS
- *      for iretq to use
- * */
-extern __attribute__((aligned(16))) uintptr_t IRETQ_FRAME[5];
 
 /* Populate iretq user context into fake stack frame */
 void stash_iretq_frame(uintptr_t frame[5], iretq_user_ctx_t ctx);
