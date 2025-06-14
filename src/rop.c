@@ -99,7 +99,7 @@ size_t chain_swapgs_iretq(rop_buffer_t rop,
  * Read arbitrary memory stored in a ptr
  *      pop rax; ret;
  *      target_ptr;
- *      mov rax, [rax]; ret;
+ *      mov rax (eax), [rax]; (pop rbp;) ret; 
  *      kpti_trampoline;
  *      ...
  *      user_rip = asm that moves rax to a variable, then we can leak it.
