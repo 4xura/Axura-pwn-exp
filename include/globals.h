@@ -40,6 +40,9 @@ extern iretq_user_ctx_t IRETQ_USER_CTX;
 extern __attribute__((aligned(16))) uintptr_t IRETQ_FRAME[5];
 #endif
 
+/* ============= ret2dir ============= */
+/* Abuse call_modprobe by hijacking modprobe_path */
+GLOBAL_VAR(uintptr_t, MODPORBE_PATH_ADDR, 0);
 
 
 
