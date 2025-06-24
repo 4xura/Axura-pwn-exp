@@ -12,7 +12,7 @@
  *      https://elixir.bootlin.com/linux/v6.12.34/source/kernel/module/kmod.c#L72
  *
  *  const char *modprobe_path_addr = "0xffffffff82061820";  // look up in /proc/kallsyms 
- *  const char *fake    = "/tmp/f";
+ *  const char *fake    = "/tmp/w";
  *  const char *dummy   = "/tmp/d";
  *  const char *res     = "/tmp/syms";
  *
@@ -27,7 +27,7 @@
 /* Test by writing a shell script for faked modprobe_path */
 void ret2dir_modprobe_path_test(
     const char *modprobe_path_addr,   
-    const char *fake_modprobe_path,   // e.g. "/tmp/w" "/tmp/f"
+    const char *fake_modprobe_path,   // e.g. "/tmp/w" 
     const char *dummy_trigger_path,   // e.g. "/tmp/d"
     const char *result_file_path,     // e.g. "/tmp/syms"
     const char *payload       
@@ -36,7 +36,7 @@ void ret2dir_modprobe_path_test(
 /* Use a dropper from payloads/dropper.h > faked modprobe_path */
 void ret2dir_modprobe_path_(
     const char *modprobe_path_addr,   
-    const char *fake_modprobe_path,   // e.g. "/tmp/w" "/tmp/f"
+    const char *fake_modprobe_path,   // e.g. "/tmp/w"
     const char *dummy_trigger_path,   // e.g. "/tmp/d"
 );
 
