@@ -3,7 +3,7 @@
 #include "../payloads/dropper.h"
 
 /* Hijack modprobe_path inside the call_modprobe() with a dummy trigger */
-void ret2dir_modprobe_path_test(const char *modprobe_path_addr,
+void _test_ret2dir_modprobe_path(const char *modprobe_path_addr,
                                 const char *fake_modprobe_path,
                                 const char *dummy_trigger_path,
                                 const char *result_file_path,
@@ -82,9 +82,9 @@ void ret2dir_modprobe_path_test(const char *modprobe_path_addr,
     fclose(resf);
 }
 
-void ret2dir_modprobe_path(const char *modprobe_path_addr,
-                        const char *fake_modprobe_path,
-                        const char *dummy_trigger_path)
+void __ret2dir_modprobe_path(const char *modprobe_path_addr,
+                            const char *fake_modprobe_path,
+                            const char *dummy_trigger_path)
 {
     INFO("Hello from user land (ret2dir_modprobe_path)");
     INFO("Expecting kernel modprobe_path (@ %s) to point to: %s)", modprobe_path_addr, fake_modprobe_path);

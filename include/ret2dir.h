@@ -25,21 +25,21 @@
  */
 
 /* Test by writing a shell script for faked modprobe_path */
-void ret2dir_modprobe_path_test(
-    const char *modprobe_path_addr,   
-    const char *fake_modprobe_path,   // e.g. "/tmp/w" 
-    const char *dummy_trigger_path,   // e.g. "/tmp/d"
-    const char *result_file_path,     // e.g. "/tmp/syms"
-    const char *payload       
-);
+void _test_ret2dir_modprobe_path(const char *modprobe_path_addr,   
+                                const char *fake_modprobe_path,   // e.g. "/tmp/w" 
+                                const char *dummy_trigger_path,   // e.g. "/tmp/d"
+                                const char *result_file_path,     // e.g. "/tmp/syms"
+                                const char *payload);
 
 /* Use a dropper from payloads/dropper.h > faked modprobe_path */
-void ret2dir_modprobe_path_(
-    const char *modprobe_path_addr,   
-    const char *fake_modprobe_path,   // e.g. "/tmp/w"
-    const char *dummy_trigger_path,   // e.g. "/tmp/d"
+void __ret2dir_modprobe_path_(
+        const char *modprobe_path_addr,   
+        const char *fake_modprobe_path,   // e.g. "/tmp/w"
+        const char *dummy_trigger_path,   // e.g. "/tmp/d"
 );
 
+/* Wrapper */
+void ret2dir_modprobe_path(void);
 
 
 #endif  // RET2DIR_H
