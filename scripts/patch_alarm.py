@@ -27,8 +27,8 @@ pwndbg> distance 0x555555555389 0x55555555537f
 Patch
 """
 patch_offset = 0x137f
-# nop_patch = asm('nop') * 11  # patch mov edi; mov eax; call alarm
-patch = asm('xor eax, eax') + asm('nop') * 8  # 3 + 8 = 11 bytes
+# patch = asm('nop') * 11  # patch mov edi; mov eax; call alarm
+patch = asm('xor eax, eax') + asm('nop') * 8  # 2 + 8 = 10 bytes
 
 with open('./pwn', 'rb') as f:
     data = bytearray(f.read())
