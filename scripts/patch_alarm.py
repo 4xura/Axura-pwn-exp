@@ -3,7 +3,7 @@ from pwn import *
 context.clear()
 context.arch = 'amd64'
 context.os = 'linux'
-context.binary = './pwdPro_pe'
+context.binary = './pwn'
 elf = context.binary
 
 # PIE binary — patch the file assuming offset is 0x137f
@@ -30,13 +30,13 @@ patch_offset = 0x137f
 # nop_patch = asm('nop') * 11  # patch mov edi; mov eax; call alarm
 patch = asm('xor eax, eax') + asm('nop') * 8  # 3 + 8 = 11 bytes
 
-with open('./pwdPro_pe', 'rb') as f:
+with open('./pwn', 'rb') as f:
     data = bytearray(f.read())
 
 data[patch_offset:patch_offset + len(patch)] = patch
 
-with open('./pwdPro_pe_pa', 'wb') as f:
+with open('./pwn_patch', 'wb') as f:
     f.write(data)
 
-print(f"[+] Patched binary saved to ./pwdPro_pe_pa")
+print(f"[+] Patched binary saved to ./pwn_patch")
 
