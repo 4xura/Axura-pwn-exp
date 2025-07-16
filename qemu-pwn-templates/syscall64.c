@@ -4,14 +4,16 @@
 __attribute__((naked))
 void syscall64(uint64_t syscall_num, ...) {
     __asm__ volatile (
-        "movq %rdi, %rax\n"
-        "movq %rsi, %rdi\n"
-        "movq %rdx, %rsi\n"
-        "movq %rcx, %rdx\n"
-        "movq %r8,  %r10\n"
-        "movq %r9,  %r8\n"
-        "movq 8(%rsp), %r9\n"
+        ".intel_syntax noprefix\n"
+        "mov rax, rdi\n"        // syscall number
+        "mov rdi, rsi\n"        // arg1
+        "mov rsi, rdx\n"        // arg2
+        "mov rdx, rcx\n"        // arg3
+        "mov r10, r8\n"         // arg4
+        "mov r8,  r9\n"         // arg5
+        "mov r9,  [rsp + 8]\n"  // arg6
         "syscall\n"
         "ret\n"
+        ".att_syntax prefix\n"
     );
 }
