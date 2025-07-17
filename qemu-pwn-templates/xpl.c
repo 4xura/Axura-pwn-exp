@@ -19,8 +19,8 @@
 /* 
  * MMIO 
  */
-#define MMIO_REGS 64
-#define MMIO_SIZE (MMIO_REGS * sizeof(uint32_t))
+#define MMIO_REGS   64
+#define MMIO_SIZE   (MMIO_REGS * sizeof(uint32_t))
 
 #define MAP_SIZE    0x1000UL 
 #define MAP_MASK    (MAP_SIZE - 1)
@@ -58,11 +58,11 @@ void mmio_write(uint32_t *addr, uint32_t val) {
 /* 
  * PMIO 
  */
-#define PMIO_ADDR 0
-#define PMIO_DATA 4
-#define PMIO_REGS STRNG_MMIO_REGS
-#define PMIO_SIZE 8
-#define PMIO_PORT "0xc050"
+#define PMIO_ADDR   0
+#define PMIO_DATA   4
+#define PMIO_REGS   STRNG_MMIO_REGS
+#define PMIO_SIZE   8
+#define PMIO_PORT   "0xc050"
 
 // Require CAP_SYS_RAWIO
 void setup_pmio(void) {
@@ -82,6 +82,9 @@ void pmio_write(uint32_t port, uint32_t val) {
     outl(val, port);
 }
 
+/*
+ * Exploit
+ */
 int main(int argc, char **argv, char **envp)
 {
     void        *mmio_base
