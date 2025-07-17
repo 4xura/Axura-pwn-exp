@@ -8,6 +8,9 @@
 
 /* MMIO */
 
+#define MAP_SIZE    0x1000UL 
+#define MAP_MASK    (MAP_SIZE - 1)
+
 // Map MMIO region from PCI device 
 void *get_mmio_base(const char *pci_resource_path) {
     int fd = open(pci_resource_path, O_RDWR | O_SYNC);
@@ -38,6 +41,14 @@ void mmio_write(uint32_t *addr, uint32_t val) {
 }
 
 /* PMIO */
+
+// First setup PMIO (user process I/O privilege level 3)
+// then we can use inl and outl later
+void setup_pmio(void) {
+    if (iopl(3) < 0)
+        perror("failed to change i/o privilege! no root?");
+        exit(EXIT_FAILURE);
+}
 
 // Read 32-bit value to PMIO
 uint32_t pmio_read(uint32_t port) {

@@ -7,9 +7,6 @@
 #include <sys/io.h>
 #include "xmio.h"
 
-#define MAP_SIZE    0x1000UL 
-#define MAP_MASK    (MAP_SIZE - 1)
-
 #define MMIO_REGS 65
 #define MMIO_SIZE (MMIO_REGS * sizeof(uint32_t))
 
@@ -23,8 +20,29 @@
 #define leak(label, value) \
     printf("\033[36m%s:\033[0m \033[1;33m0x%lx\033[0m\n", label, (size_t)(value))
 
+#define EE(msg)                         \
+    do {                                                \
+        fprintf(stderr, "\033[31m\033[1m[x] Error: \033[0m%s\n", msg);  \
+        perror("");                                     \
+        exit(EXIT_FAILURE);                             \
+    } while (0)
+
 int main(int argc, char **argv, char **envp)
 {
+    uint64_t    mmio_base;
+    uint32_t    pmio_port = 0xc050;
+
+    /*
+     * initialization
+     */
+    }
+    mmio_base = get_mmio_base(PCI_DEVICE);  
+
+    setup_pmio();
+
+
+
+
 
     return 0;
 }
