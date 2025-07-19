@@ -10,6 +10,9 @@
 #define leak(sym) \
     printf("[*] Leak %-20s addr: \033[1;33m0x%lx\033[0m\n", #sym, (size_t)(sym))
 
+#define leak64(sym) \
+    printf("[*] Leak %-20s addr: \033[1;33m0x%llx\033[0m\n", #sym, (uint64_t)(sym))
+
 #define die(msg)                         \
     do {                                                \
         fprintf(stderr, "\033[31m\033[1m[x] Error: \033[0m%s\n", msg);  \
