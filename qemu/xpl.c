@@ -21,6 +21,21 @@
     } while (0)
 
 /* 
+ * PCI Device
+ */
+#define PCI_DEVICE  "/sys/devices/pci0000:00/0000:00:04.0/resource0" 
+
+// Open PCI device
+int open_pci_resource(const char *pci_resource_path) {
+    int fd = open(pci_resource_path, O_RDWR | O_SYNC);
+    if (fd < 0) {
+        perror("open pci resource");
+        exit(EXIT_FAILURE);
+    }
+    return fd;
+}
+
+/* 
  * MMIO 
  */
 #define MMIO_REGS   64
@@ -28,24 +43,14 @@
 
 #define MAP_SIZE    0x1000UL 
 #define MAP_MASK    (MAP_SIZE - 1)
-#define PCI_DEVICE  "/sys/devices/pci0000:00/0000:00:04.0/resource0" 
 
-// Map MMIO region from PCI device 
-void *get_mmio_base(const char *pci_resource_path) {
-    int fd = open(pci_resource_path, O_RDWR | O_SYNC);
-    if (fd < 0) {
-        perror("open pci resource");
-        exit(EXIT_FAILURE);
-    }
-
+// Map MMIO region using fd open from pci device
+void *map_mmio_region(int fd) {
     void *mmio_base = mmap(NULL, MAP_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
-    close(fd);
-
     if (mmio_base == MAP_FAILED) {
         perror("mmap failed");
         exit(EXIT_FAILURE);
     }
-
     return mmio_base;
 }
 
@@ -94,8 +99,12 @@ int main(int argc, char **argv, char **envp)
     /*
      * initialization
      */
-    void *mmio_base
-    mmio_base = get_mmio_base(PCI_DEVICE);  
+    int         mmio_fd;
+    uint64_t    mmio_base;  // Target host is 64 bit
+
+    mmio_fd     = open_pci_resource(PCI_DEVICE);
+    mmio_base   = (uint64_t)map_mmio_region(mmio_fd);
+    leak64(mmio_base);
 
     setup_pmio();
 
