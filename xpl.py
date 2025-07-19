@@ -9,7 +9,6 @@ sl      = lambda data                 :p.sendline(data)
 sla     = lambda delim,data           :p.sendlineafter(delim, data)
 r       = lambda num=4096             :p.recv(num)
 ru      = lambda delim, drop=True     :p.recvuntil(delim, drop)
-l64     = lambda                      :u64(p.recvuntil(b"\x7f")[-6:].ljust(8,b"\x00"))
 uu64    = lambda data                 :u64(data.ljust(8, b"\0"))
 
 
@@ -23,7 +22,7 @@ def g(gdbscript: str = ""):
             raw_input()
 
 
-def pa(addr: int) -> None:
+def leak(addr: int) -> None:
     frame = inspect.currentframe().f_back
     variables = {k: v for k, v in frame.f_locals.items() if v is addr}
     desc = next(iter(variables.keys()), "unknown")
