@@ -55,13 +55,13 @@ void *map_mmio_region(int fd) {
 }
 
 // Read 32-bit value from MMIO
-uint32_t mmio_read(uint32_t *addr) {
-    return *(volatile uint32_t *)addr;
+uint32_t mmio_read(uint32_t addr) {
+    return *(uint32_t *)addr;
 }
 
 // Write 32-bit value to MMIO
-void mmio_write(uint32_t *addr, uint32_t val) {
-    *(volatile uint32_t *)addr = val;
+void mmio_write(uint32_t addr, uint32_t val) {
+    *((uint32_t *)addr) = val;
 }
 
 /* 
