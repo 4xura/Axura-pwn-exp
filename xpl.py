@@ -27,7 +27,8 @@ def pa(addr: int) -> None:
     frame = inspect.currentframe().f_back
     variables = {k: v for k, v in frame.f_locals.items() if v is addr}
     desc = next(iter(variables.keys()), "unknown")
-    success(f"[LEAK] {desc} ---> {addr:#x}")
+    c_addr = f"\033[1;33m{addr:#x}\033[0m"
+    success(f"Leak {desc:<16} addr: {c_addr}")
 
 
 class ROPGadgets:
@@ -117,7 +118,7 @@ def show():
 def xpl():
 
 
-    pause()
+    # pause()
     p.interactive()
 
 
