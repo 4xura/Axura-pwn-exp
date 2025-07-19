@@ -2,14 +2,15 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <stddef.h>
 #include <sys/mman.h>
 #include <stdint.h>
 #include <sys/io.h>
 
-#define leak(label, value) \
-    printf("\033[36m%s:\033[0m \033[1;33m0x%lx\033[0m\n", label, (size_t)(value))
+#define leak(sym) \
+    printf("[*] Leak %-20s addr: \033[1;33m0x%lx\033[0m\n", #sym, (size_t)(sym))
 
-#define EE(msg)                         \
+#define die(msg)                         \
     do {                                                \
         fprintf(stderr, "\033[31m\033[1m[x] Error: \033[0m%s\n", msg);  \
         perror("");                                     \
@@ -62,7 +63,7 @@ void mmio_write(uint32_t *addr, uint32_t val) {
 #define PMIO_DATA   4
 #define PMIO_REGS   STRNG_MMIO_REGS
 #define PMIO_SIZE   8
-#define PMIO_PORT   "0xc050"
+#define PMIO_PORT   0xc050
 
 // Require CAP_SYS_RAWIO
 void setup_pmio(void) {
@@ -87,13 +88,10 @@ void pmio_write(uint32_t port, uint32_t val) {
  */
 int main(int argc, char **argv, char **envp)
 {
-    void        *mmio_base
-    uint32_t    pmio_port = 0xc050;
-
     /*
      * initialization
      */
-    }
+    void *mmio_base
     mmio_base = get_mmio_base(PCI_DEVICE);  
 
     setup_pmio();
